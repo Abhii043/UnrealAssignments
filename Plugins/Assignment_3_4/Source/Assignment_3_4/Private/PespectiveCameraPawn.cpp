@@ -11,7 +11,9 @@ APespectiveCameraPawn::APespectiveCameraPawn()
 
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("Perspective SpringArm"));
 	SpringArm->TargetArmLength = 0;
-	SpringArm->TargetOffset = FVector(-200,0,100);
+	SpringArm->bEnableCameraLag = true;
+	SpringArm->CameraLagSpeed = 5.0f;
+	SpringArm->TargetOffset = FVector(-400,0,100);
 	RootComponent = SpringArm;
 	SpringArm->bUsePawnControlRotation = true;
 

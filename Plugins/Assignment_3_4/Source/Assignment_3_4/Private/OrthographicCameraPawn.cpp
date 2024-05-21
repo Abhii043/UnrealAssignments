@@ -11,7 +11,9 @@ AOrthographicCameraPawn::AOrthographicCameraPawn()
 
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("OrthographicSpringArm"));
 	SpringArm->TargetArmLength = 0;
-	SpringArm->TargetOffset = FVector(0, 0, 2000);
+	SpringArm->bEnableCameraLag = true;
+	SpringArm->CameraLagSpeed = 5.0f;
+	SpringArm->TargetOffset = FVector(0, 0, 1500);
 	RootComponent = SpringArm;
 
 	OrthographicCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("OrthographicCamera"));

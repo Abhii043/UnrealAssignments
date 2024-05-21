@@ -159,16 +159,6 @@ void AInteractiveArchController::OnLeftClick()
 			}
 		}
 		else {
-			if (GetPawn()->GetClass() == AIsometricCameraPawn::StaticClass())
-			{
-				GetPawn()->SetActorLocation(LastHitLocation + FVector(0, 0, 200));
-			}
-			else if (GetPawn()->GetClass() == ATopDownPawn::StaticClass()) {
-				GetPawn()->SetActorLocation(LastHitLocation + FVector(-150, 0, 50));
-			}
-			else {
-				GetPawn()->SetActorLocation(LastHitLocation);
-			}
 			IsDestroyed = true;
 			if(SelectionWidget){
 				if(SelectionWidget->ScrollBox_1->ScrollBoxType == EScrollBoxType::MeshData){
@@ -227,7 +217,16 @@ void AInteractiveArchController::SpawnMesh(const FMeshData& MeshData)
 			SpawnedMeshActor = GetWorld()->SpawnActor<AMeshActor>(AMeshActor::StaticClass(), LastHitLocation + FVector(0, 0, OffsetZ), Rotation, Params);
 		else
 			SpawnedMeshActor = GetWorld()->SpawnActor<AMeshActor>(AMeshActor::StaticClass(), LastHitLocation, Rotation, Params);
-		//GetPawn()->SetActorLocation(LastHitLocation);
+		if (GetPawn()->GetClass() == AIsometricCameraPawn::StaticClass())
+		{
+			GetPawn()->SetActorLocation(LastHitLocation + FVector(0, 0, 200));
+		}
+		else if (GetPawn()->GetClass() == ATopDownPawn::StaticClass()) {
+			GetPawn()->SetActorLocation(LastHitLocation + FVector(-150, 0, 50));
+		}
+		else {
+			GetPawn()->SetActorLocation(LastHitLocation);
+		}
 		IsDestroyed = false;
 	}
 	else {
@@ -237,7 +236,6 @@ void AInteractiveArchController::SpawnMesh(const FMeshData& MeshData)
 				SpawnedMeshActor = GetWorld()->SpawnActor<AMeshActor>(AMeshActor::StaticClass(), LastHitLocation + FVector(0, 0, OffsetZ), Rotation, Params);
 			else
 				SpawnedMeshActor = GetWorld()->SpawnActor<AMeshActor>(AMeshActor::StaticClass(), LastHitLocation, Rotation, Params);
-			//GetPawn()->SetActorLocation(LastHitLocation);
 			IsDestroyed = false;
 		}
 	}

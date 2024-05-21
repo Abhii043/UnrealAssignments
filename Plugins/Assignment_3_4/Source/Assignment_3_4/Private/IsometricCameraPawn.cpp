@@ -13,7 +13,7 @@ AIsometricCameraPawn::AIsometricCameraPawn()
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("IsometricSpringArm"));
 	SpringArm->TargetArmLength = 2000;
 	SpringArm->bEnableCameraLag = true;
-	SpringArm->CameraLagSpeed = 30.0f;
+	SpringArm->CameraLagSpeed = 5.0f;
 	SpringArm->AddRelativeRotation(FRotator(-45, 45, 0));
 	RootComponent = SpringArm;
 
