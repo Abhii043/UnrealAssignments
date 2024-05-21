@@ -16,6 +16,7 @@
 #include "IsometricCameraPawn.h"
 #include "OrthographicCameraPawn.h"
 #include "PespectiveCameraPawn.h"
+#include "TopDownPawn.h"
 
 #include "SplineActor.h"
 #include "Delegates/Delegate.h" 
@@ -37,16 +38,16 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "InteractiveArchController")
+	UPROPERTY(BlueprintReadOnly, Category = "InteractiveArchController")
 	UInputMappingContext* Mapping;
 
-	UPROPERTY(VisibleDefaultsOnly , BlueprintReadOnly , Category = "InteractiveArchController" )
+	UPROPERTY(BlueprintReadOnly , Category = "InteractiveArchController" )
 	UInputAction* OnLeftClickAction;
 
-	UPROPERTY(VisibleDefaultsOnly , BlueprintReadOnly , Category = "InteractiveArchController" )
+	UPROPERTY(BlueprintReadOnly , Category = "InteractiveArchController" )
 	UInputAction* HideScrollBoxes;
 
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "InteractiveArchController")
+	UPROPERTY(BlueprintReadWrite, Category = "InteractiveArchController")
 	FVector LastHitLocation ;
 
 	UPROPERTY(EditAnywhere , BlueprintReadWrite, Category = "InteractiveArchController")
@@ -61,22 +62,13 @@ public:
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "InteractiveArchController")
 	AMeshActor* SpawnedMeshActor;
 
-	UPROPERTY()
-	APawn* SpawnedCharacter;
-
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly, Category = "InteractiveArchController")
 	TArray<TSubclassOf<APawn>> PawnReference ;
-	UPROPERTY()
-	AOrthographicCameraPawn* OrthoPawn;
-	UPROPERTY()
-	APespectiveCameraPawn* PerspectivePawn;
-	UPROPERTY()
-	AIsometricCameraPawn* IsometricPawn;
-	UPROPERTY()
+
+	UPROPERTY(BlueprintReadOnly, Category = "InteractiveArchController")
 	int32 index;
-	UPROPERTY()
-	UInputAction* TogglePawn;
-	UFUNCTION(BlueprintCallable)
+
+	UFUNCTION(BlueprintCallable, Category = "InteractiveArchController")
 	void Spawn();
 
 	UFUNCTION(BlueprintCallable , Category = "InteractiveArchController")
@@ -91,61 +83,61 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "InteractiveArchController")
 	void SetTexture(const FTextureData& MaterialData);
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "InteractiveArchController")
 	void HideVisibility(); 
 
 
 	//Assignment-3
 
-	UPROPERTY(EditDefaultsOnly , Category = "WallController")
+	UPROPERTY(BlueprintReadOnly, Category = "InteractiveArchSplineController")
 	UInputAction* OnClick;
 	
-	UPROPERTY(EditDefaultsOnly, Category = "WallController")
+	UPROPERTY(BlueprintReadOnly, Category = "InteractiveArchSplineController")
 	UInputAction* Undo;
 	
-	UPROPERTY(EditDefaultsOnly, Category = "WallController")
+	UPROPERTY(BlueprintReadOnly, Category = "InteractiveArchSplineController")
 	UInputAction* DestroyWall;
 	
-	UPROPERTY(EditDefaultsOnly, Category = "WallController")
+	UPROPERTY(BlueprintReadOnly, Category = "InteractiveArchSplineController")
 	UInputAction* CreateNewSpline;
 
-	UPROPERTY(EditDefaultsOnly, Category = "WallController")
+	UPROPERTY(BlueprintReadOnly, Category = "InteractiveArchSplineController")
 	UInputAction* NextSpline;
 
-	UPROPERTY(EditDefaultsOnly, Category = "WallController")
+	UPROPERTY(BlueprintReadOnly, Category = "InteractiveArchSplineController")
 	UInputAction* LastSpline;
 
-	UPROPERTY(EditDefaultsOnly, Category = "WallController")
+	UPROPERTY(BlueprintReadOnly, Category = "InteractiveArchSplineController")
 	UInputAction* LatestSpline;
 
-	UPROPERTY(EditDefaultsOnly, Category = "WallController")
+	UPROPERTY(BlueprintReadOnly, Category = "InteractiveArchSplineController")
 	UInputMappingContext* MappingContext;
 
-	UPROPERTY(EditDefaultsOnly, Category = "WallController")
+	UPROPERTY(BlueprintReadOnly, Category = "InteractiveArchSplineController")
 	TArray<ASplineActor*> ArrayOfSplines;
 
-	UPROPERTY(EditDefaultsOnly, Category = "WallController")
+	UPROPERTY(BlueprintReadOnly, Category = "InteractiveArchSplineController")
 	int32 SplineIndex;
 
-	UFUNCTION(BlueprintCallable, Category = "WallController")
+	UFUNCTION(BlueprintCallable, Category = "InteractiveArchSplineController")
 	void GenerateWall();
 	
-	UFUNCTION(BlueprintCallable, Category = "WallController")
+	UFUNCTION(BlueprintCallable, Category = "InteractiveArchSplineController")
 	void NewSpline();	
 
-	UFUNCTION(BlueprintCallable, Category = "WallController")
+	UFUNCTION(BlueprintCallable, Category = "InteractiveArchSplineController")
 	void BackWardSpline();	
 
-	UFUNCTION(BlueprintCallable, Category = "WallController")
+	UFUNCTION(BlueprintCallable, Category = "InteractiveArchSplineController")
 	void ForwardSpline();
 	
-	UFUNCTION(BlueprintCallable, Category = "WallController")
+	UFUNCTION(BlueprintCallable, Category = "InteractiveArchSplineController")
 	void NewestSpline();
 
-	UFUNCTION(BlueprintCallable, Category = "WallController")
+	UFUNCTION(BlueprintCallable, Category = "InteractiveArchSplineController")
 	void UndoWall();
 	
-	UFUNCTION(BlueprintCallable, Category = "WallController")
+	UFUNCTION(BlueprintCallable, Category = "InteractiveArchSplineController")
 	void Destroy();
 
 	//Delegate And its Function
@@ -157,15 +149,21 @@ public:
 
 	//For switching Controll Between Assignments
 
-	UPROPERTY(EditAnywhere , BlueprintReadWrite, Category = "InteractiveArchController")
+	UPROPERTY(EditAnywhere , BlueprintReadWrite, Category = "InteractiveArchSplineController")
 	TSubclassOf<UDisplayMessage> _DisplayWidget; 
 
-	UPROPERTY(BlueprintReadWrite, Category = "InteractiveArchController")
+	UPROPERTY(BlueprintReadWrite, Category = "InteractiveArchSplineController")
 	UDisplayMessage* DisplayWidget;
 
-	UFUNCTION(BlueprintCallable, Category = "WallController")
+	UFUNCTION(BlueprintCallable, Category = "InteractiveArchSwitchController")
 	void SwitchController();
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly , Category = "InteractiveArchSwitchController")
 	bool IsDynamicMesh;
+
+	UPROPERTY(BlueprintReadOnly, Category = "InteractiveArchSwitchController")
+	UInputAction* TogglePawn;
+
+	UPROPERTY(BlueprintReadOnly, Category = "InteractiveArchSwitchController")
+	UInputMappingContext* CameraPawnMapping;
 };

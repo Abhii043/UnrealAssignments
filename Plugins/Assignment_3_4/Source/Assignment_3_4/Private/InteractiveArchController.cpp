@@ -8,13 +8,10 @@ AInteractiveArchController::AInteractiveArchController() {
 	DefaultMouseCursor = EMouseCursor::Crosshairs;
 	IsDestroyed = true;
 
-	OrthoPawn = CreateDefaultSubobject<AOrthographicCameraPawn>(TEXT("OrthoPawn"));
-	PerspectivePawn = CreateDefaultSubobject<APespectiveCameraPawn>(TEXT("PerspectivePawn"));
-	IsometricPawn = CreateDefaultSubobject<AIsometricCameraPawn>(TEXT("IsometricPawn"));
-
-	PawnReference.Add(OrthoPawn->GetClass());
-	PawnReference.Add(PerspectivePawn->GetClass());
-	PawnReference.Add(IsometricPawn->GetClass());
+	PawnReference.Add(AOrthographicCameraPawn::StaticClass());
+	PawnReference.Add(APespectiveCameraPawn::StaticClass());
+	PawnReference.Add(AIsometricCameraPawn::StaticClass());
+	PawnReference.Add(ATopDownPawn::StaticClass());
 
 	index = 0;
 	LastHitLocation = FVector{ 50,50,100 };
@@ -32,30 +29,40 @@ void AInteractiveArchController::SetupInputComponent()
 
 	Mapping = NewObject<UInputMappingContext>(this);
 
+
 	OnLeftClickAction = NewObject<UInputAction>(this);
 	OnLeftClickAction->ValueType = EInputActionValueType::Boolean;
 
 	HideScrollBoxes = NewObject<UInputAction>(this);
 	HideScrollBoxes->ValueType = EInputActionValueType::Boolean;
 	
+
+	if(Mapping)
+	{
+		Mapping->MapKey(OnLeftClickAction, EKeys::LeftMouseButton);
+		Mapping->MapKey(HideScrollBoxes, EKeys::Tab);
+	}
+
+	if(EIC)
+	{
+		EIC->BindAction(OnLeftClickAction, ETriggerEvent::Completed, this, &AInteractiveArchController::OnLeftClick);
+		EIC->BindAction(HideScrollBoxes, ETriggerEvent::Completed, this, &AInteractiveArchController::HideVisibility);
+	}
+
+	//CameraPawnMapping
+	CameraPawnMapping = NewObject<UInputMappingContext>(this);
+
 	TogglePawn = NewObject<UInputAction>(this);
 	TogglePawn->ValueType = EInputActionValueType::Boolean;
 
-	check(Mapping)
-		Mapping->MapKey(OnLeftClickAction, EKeys::LeftMouseButton);
-		Mapping->MapKey(HideScrollBoxes, EKeys::Tab);
-		Mapping->MapKey(TogglePawn, EKeys::P);
-
-	check(EIC)
-		EIC->BindAction(OnLeftClickAction, ETriggerEvent::Completed, this, &AInteractiveArchController::OnLeftClick);
-		EIC->BindAction(HideScrollBoxes, ETriggerEvent::Completed, this, &AInteractiveArchController::HideVisibility);
+	if (CameraPawnMapping)
+		CameraPawnMapping->MapKey(TogglePawn, EKeys::P);
+	if (EIC)
+	{
 		EIC->BindAction(TogglePawn, ETriggerEvent::Completed, this, &AInteractiveArchController::Spawn);
+	}
 
-	check(GetLocalPlayer());
-	UEnhancedInputLocalPlayerSubsystem* SubSystem = GetLocalPlayer()->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
-	check(SubSystem);
-	SubSystem->AddMappingContext(Mapping, 0);
-	//Assignment-3
+	//Spline Mapping
 
 	MappingContext = NewObject<UInputMappingContext>(this);
 
@@ -99,10 +106,12 @@ void AInteractiveArchController::SetupInputComponent()
 		MappingContext->MapKey(DestroyWall, EKeys::B);
 	}
 
-	/*check(GetLocalPlayer());
+	//Add Mapping Into Controller
+	check(GetLocalPlayer());
 	UEnhancedInputLocalPlayerSubsystem* SubSystem = GetLocalPlayer()->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
 	check(SubSystem);
-	SubSystem->AddMappingContext(MappingContext, 0);*/
+	SubSystem->AddMappingContext(Mapping, 0);
+	SubSystem->AddMappingContext(CameraPawnMapping, 0);
 }
 
 void AInteractiveArchController::BeginPlay()
@@ -116,6 +125,7 @@ void AInteractiveArchController::BeginPlay()
 	}
 	Spawn();
 }
+
 void AInteractiveArchController::OnLeftClick()
 {
 	FHitResult HitonClick;
@@ -136,6 +146,9 @@ void AInteractiveArchController::OnLeftClick()
 			{
 				GetPawn()->SetActorLocation(LastHitLocation + FVector(0, 0, 200));
 			}
+			else if (GetPawn()->GetClass() == ATopDownPawn::StaticClass()) {
+				GetPawn()->SetActorLocation(LastHitLocation + FVector(-150, 0, 50));
+			}
 			else {
 				GetPawn()->SetActorLocation(LastHitLocation);
 			}
@@ -149,6 +162,9 @@ void AInteractiveArchController::OnLeftClick()
 			if (GetPawn()->GetClass() == AIsometricCameraPawn::StaticClass())
 			{
 				GetPawn()->SetActorLocation(LastHitLocation + FVector(0, 0, 200));
+			}
+			else if (GetPawn()->GetClass() == ATopDownPawn::StaticClass()) {
+				GetPawn()->SetActorLocation(LastHitLocation + FVector(-150, 0, 50));
 			}
 			else {
 				GetPawn()->SetActorLocation(LastHitLocation);
@@ -281,7 +297,7 @@ void AInteractiveArchController::Spawn()
 	}
 
 	if (index == PawnReference.Num()) { index = 0; }
-	TSubclassOf<APawn> CharacterClass = PawnReference[index%3]; // Replace with your character class 
+	TSubclassOf<APawn> CharacterClass = PawnReference[index]; // Replace with your character class 
 
 	if (CharacterClass) {
 
@@ -300,10 +316,13 @@ void AInteractiveArchController::Spawn()
 		SubSystem->ClearAllMappings();
 
 		if(PawnReference[index]){
-			
+			APawn* SpawnedCharacter;
 			if (PawnReference[index] == AIsometricCameraPawn::StaticClass())
 			{
 				SpawnedCharacter = World->SpawnActor<APawn>(CharacterClass, LastHitLocation + FVector(0, 0, 200), Rotation, Params);
+			}
+			else if (PawnReference[index] == ATopDownPawn::StaticClass()) {
+				SpawnedCharacter = World->SpawnActor<APawn>(CharacterClass, LastHitLocation + FVector(-150, 0, 50), Rotation, Params);
 			}
 			else {
 				SpawnedCharacter = World->SpawnActor<APawn>(CharacterClass, LastHitLocation, Rotation, Params);
@@ -313,6 +332,7 @@ void AInteractiveArchController::Spawn()
 			SubSystem = GetLocalPlayer()->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
 			check(SubSystem);
 			SubSystem->AddMappingContext(Mapping, 0);
+			SubSystem->AddMappingContext(CameraPawnMapping, 0);
 
 			if (SpawnedCharacter) {
 				Possess(SpawnedCharacter);
@@ -442,13 +462,12 @@ void AInteractiveArchController::Destroy()
 void AInteractiveArchController::SwitchController()
 {
 	if (IsDynamicMesh) {
-		//bAssignment3 = true;
 		SelectionWidget->RemoveFromViewport();
 		DisplayWidget->AddToViewport(0);
-		//GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Blue, "jausdkhs");
 		UEnhancedInputLocalPlayerSubsystem* SubSystem = GetLocalPlayer()->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
 		SubSystem->ClearAllMappings();
 		SubSystem->AddMappingContext(MappingContext, 0);
+		SubSystem->AddMappingContext(CameraPawnMapping, 0);
 		IsDynamicMesh = false;
 	}
 	else {
@@ -457,6 +476,7 @@ void AInteractiveArchController::SwitchController()
 		UEnhancedInputLocalPlayerSubsystem* SubSystem = GetLocalPlayer()->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
 		SubSystem->ClearAllMappings();
 		SubSystem->AddMappingContext(Mapping, 0);
+		SubSystem->AddMappingContext(CameraPawnMapping, 0);
 		IsDynamicMesh = true;
 	}
 }
