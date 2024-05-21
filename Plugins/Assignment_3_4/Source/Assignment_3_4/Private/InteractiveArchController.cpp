@@ -18,6 +18,11 @@ AInteractiveArchController::AInteractiveArchController() {
 
 	index = 0;
 	LastHitLocation = FVector{ 50,50,100 };
+
+	//Assignment-3
+
+	Message.BindUFunction(this, "NotifyMessage");
+	IsDynamicMesh = true;
 }
 
 void AInteractiveArchController::SetupInputComponent()
@@ -50,7 +55,54 @@ void AInteractiveArchController::SetupInputComponent()
 	UEnhancedInputLocalPlayerSubsystem* SubSystem = GetLocalPlayer()->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
 	check(SubSystem);
 	SubSystem->AddMappingContext(Mapping, 0);
+	//Assignment-3
 
+	MappingContext = NewObject<UInputMappingContext>(this);
+
+	OnClick = NewObject<UInputAction>(this);
+	OnClick->ValueType = EInputActionValueType::Boolean;
+
+	CreateNewSpline = NewObject<UInputAction>(this);
+	CreateNewSpline->ValueType = EInputActionValueType::Boolean;
+
+	NextSpline = NewObject<UInputAction>(this);
+	NextSpline->ValueType = EInputActionValueType::Boolean;
+
+	LastSpline = NewObject<UInputAction>(this);
+	LastSpline->ValueType = EInputActionValueType::Boolean;
+
+	LatestSpline = NewObject<UInputAction>(this);
+	LatestSpline->ValueType = EInputActionValueType::Boolean;
+
+	Undo = NewObject<UInputAction>(this);
+	Undo->ValueType = EInputActionValueType::Boolean;
+
+	DestroyWall = NewObject<UInputAction>(this);
+	DestroyWall->ValueType = EInputActionValueType::Boolean;
+
+	check(EIC)
+		EIC->BindAction(OnClick, ETriggerEvent::Completed, this, &AInteractiveArchController::GenerateWall);
+	EIC->BindAction(CreateNewSpline, ETriggerEvent::Completed, this, &AInteractiveArchController::NewSpline);
+	EIC->BindAction(NextSpline, ETriggerEvent::Completed, this, &AInteractiveArchController::ForwardSpline);
+	EIC->BindAction(LastSpline, ETriggerEvent::Completed, this, &AInteractiveArchController::BackWardSpline);
+	EIC->BindAction(LatestSpline, ETriggerEvent::Completed, this, &AInteractiveArchController::NewestSpline);
+	EIC->BindAction(Undo, ETriggerEvent::Completed, this, &AInteractiveArchController::UndoWall);
+	EIC->BindAction(DestroyWall, ETriggerEvent::Completed, this, &AInteractiveArchController::Destroy);
+
+	if (MappingContext) {
+		MappingContext->MapKey(OnClick, EKeys::LeftMouseButton);
+		MappingContext->MapKey(CreateNewSpline, EKeys::RightMouseButton);
+		MappingContext->MapKey(NextSpline, EKeys::Right);
+		MappingContext->MapKey(LastSpline, EKeys::Left);
+		MappingContext->MapKey(LatestSpline, EKeys::Up);
+		MappingContext->MapKey(Undo, EKeys::Z);
+		MappingContext->MapKey(DestroyWall, EKeys::B);
+	}
+
+	/*check(GetLocalPlayer());
+	UEnhancedInputLocalPlayerSubsystem* SubSystem = GetLocalPlayer()->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
+	check(SubSystem);
+	SubSystem->AddMappingContext(MappingContext, 0);*/
 }
 
 void AInteractiveArchController::BeginPlay()
@@ -58,6 +110,9 @@ void AInteractiveArchController::BeginPlay()
 	Super::BeginPlay();
 	if(_SelectionWidget){
 		SelectionWidget = CreateWidget<USelectionWidget>(this, _SelectionWidget);
+	}
+	if (_DisplayWidget) {
+		DisplayWidget = CreateWidget<UDisplayMessage>(this, _DisplayWidget);
 	}
 	Spawn();
 }
@@ -77,7 +132,7 @@ void AInteractiveArchController::OnLeftClick()
 		SpawnedMeshActor = Cast<AMeshActor>(HitonClick.GetActor());
 		if (SpawnedMeshActor) {
 			LastHitLocation = HitonClick.GetActor()->GetActorLocation();
-			if (GetPawn()->GetClass() == IsometricPawn->GetClass())
+			if (GetPawn()->GetClass() == AIsometricCameraPawn::StaticClass())
 			{
 				GetPawn()->SetActorLocation(LastHitLocation + FVector(0, 0, 200));
 			}
@@ -91,7 +146,7 @@ void AInteractiveArchController::OnLeftClick()
 			}
 		}
 		else {
-			if (GetPawn()->GetClass() == IsometricPawn->GetClass())
+			if (GetPawn()->GetClass() == AIsometricCameraPawn::StaticClass())
 			{
 				GetPawn()->SetActorLocation(LastHitLocation + FVector(0, 0, 200));
 			}
@@ -226,7 +281,7 @@ void AInteractiveArchController::Spawn()
 	}
 
 	if (index == PawnReference.Num()) { index = 0; }
-	TSubclassOf<APawn> CharacterClass = PawnReference[index]; // Replace with your character class 
+	TSubclassOf<APawn> CharacterClass = PawnReference[index%3]; // Replace with your character class 
 
 	if (CharacterClass) {
 
@@ -244,26 +299,164 @@ void AInteractiveArchController::Spawn()
 		check(SubSystem);
 		SubSystem->ClearAllMappings();
 
-		APawn* SpawnedCharacter;
-		if(PawnReference[index] == IsometricPawn->GetClass())
+		if(PawnReference[index]){
+			
+			if (PawnReference[index] == AIsometricCameraPawn::StaticClass())
 			{
-			SpawnedCharacter = World->SpawnActor<APawn>(CharacterClass, LastHitLocation + FVector(0,0,200), Rotation, Params);
-		}
-		else {
-			SpawnedCharacter = World->SpawnActor<APawn>(CharacterClass, LastHitLocation, Rotation, Params);
-		}
+				SpawnedCharacter = World->SpawnActor<APawn>(CharacterClass, LastHitLocation + FVector(0, 0, 200), Rotation, Params);
+			}
+			else {
+				SpawnedCharacter = World->SpawnActor<APawn>(CharacterClass, LastHitLocation, Rotation, Params);
+			}
 
-		check(GetLocalPlayer());
-		SubSystem = GetLocalPlayer()->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
-		check(SubSystem);
-		SubSystem->AddMappingContext(Mapping, 0);
+			check(GetLocalPlayer());
+			SubSystem = GetLocalPlayer()->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
+			check(SubSystem);
+			SubSystem->AddMappingContext(Mapping, 0);
 
-		if (SpawnedCharacter) {
-			Possess(SpawnedCharacter);
-		}
-		else {
-			UE_LOG(LogTemp, Warning, TEXT("Failed to spawn character"));
+			if (SpawnedCharacter) {
+				Possess(SpawnedCharacter);
+			}
+			else {
+				UE_LOG(LogTemp, Warning, TEXT("Failed to spawn character"));
+			}
 		}
 	}
 	index++;
+}
+
+
+//Assignment-3
+
+void AInteractiveArchController::GenerateWall()
+{
+	if (ArrayOfSplines.Num() != 0) {
+		FHitResult HitonClick;
+		GetHitResultUnderCursor(ECC_Visibility, true, HitonClick);
+
+		if (HitonClick.bBlockingHit)
+		{
+			FVector ClickLocation = HitonClick.Location;
+			ArrayOfSplines[SplineIndex]->Points.Add(HitonClick.Location);
+			ArrayOfSplines[SplineIndex]->AddPoint(ClickLocation);
+
+			if (ArrayOfSplines[SplineIndex]->Points.Num() >= 2) {
+				FString Msg = "On Spline " + FString::FromInt(SplineIndex + 1) + " Wall " + FString::FromInt(ArrayOfSplines[SplineIndex]->Points.Num() - 1) + " Generated";
+				Message.ExecuteIfBound(Msg);
+			}
+		}
+	}
+	else {
+		FString Msg = "Right Click To Generate Spline";
+		Message.ExecuteIfBound(Msg);
+	}
+}
+
+void AInteractiveArchController::NewSpline()
+{
+	if (ArrayOfSplines.Num() > 0) {
+		if (ArrayOfSplines[ArrayOfSplines.Num() - 1]->Points.Num() >= 2) {
+			ASplineActor* Spline = NewObject<ASplineActor>(this);
+			ArrayOfSplines.Add(Spline);
+			SplineIndex = ArrayOfSplines.Num() - 1;
+
+			FString Msg = "New Spline " + FString::FromInt(SplineIndex + 1) + " Generated";
+			Message.ExecuteIfBound(Msg);
+		}
+		else {
+			FString Msg = "Atleast Create A Wall Before Creating New Spline";
+			Message.ExecuteIfBound(Msg);
+		}
+	}
+	else {
+		ASplineActor* Spline = NewObject<ASplineActor>(this);
+		ArrayOfSplines.Add(Spline);
+		SplineIndex = ArrayOfSplines.Num() - 1;
+
+		FString Msg = "New Wall Spline " + FString::FromInt(SplineIndex + 1) + " Generated";
+		Message.ExecuteIfBound(Msg);
+	}
+}
+
+void AInteractiveArchController::BackWardSpline()
+{
+	if (SplineIndex == 0) {
+		FString Msg = "Already On Last Spline " + FString::FromInt(SplineIndex + 1);
+		Message.ExecuteIfBound(Msg);
+	}
+	else {
+		SplineIndex--;
+		FString Msg = "Now Working On Spline " + FString::FromInt(SplineIndex + 1);
+		Message.ExecuteIfBound(Msg);
+	}
+}
+
+void AInteractiveArchController::ForwardSpline()
+{
+	if (SplineIndex == ArrayOfSplines.Num() - 1) {
+		FString Msg = "Already On Latest Spline " + FString::FromInt(SplineIndex + 1);
+		Message.ExecuteIfBound(Msg);
+	}
+	else {
+		SplineIndex++;
+		FString Msg = "Now Working On Spline " + FString::FromInt(SplineIndex + 1);
+		Message.ExecuteIfBound(Msg);
+	}
+}
+
+void AInteractiveArchController::NewestSpline()
+{
+	if (SplineIndex == ArrayOfSplines.Num() - 1) {
+		FString Msg = "Already On Latest Spline " + FString::FromInt(SplineIndex + 1);
+		Message.ExecuteIfBound(Msg);
+	}
+	else {
+		SplineIndex = ArrayOfSplines.Num() - 1;
+		FString Msg = "Now Working On Latest Spline " + FString::FromInt(SplineIndex + 1);
+		Message.ExecuteIfBound(Msg);
+	}
+}
+
+void AInteractiveArchController::UndoWall()
+{
+	ArrayOfSplines[SplineIndex]->Undo();
+	if (ArrayOfSplines[SplineIndex]->Points.Num() >= 1) {
+		FString Msg = "Wall " + FString::FromInt(ArrayOfSplines[SplineIndex]->Points.Num() - 1) + " Of Spline " + FString::FromInt(SplineIndex + 1) + " Is Destroyed";
+		Message.ExecuteIfBound(Msg);
+	}
+	else {
+		FString Msg = "There is No Wall To Destroy";
+		Message.ExecuteIfBound(Msg);
+	}
+}
+
+void AInteractiveArchController::Destroy()
+{
+	ArrayOfSplines[SplineIndex]->DestroyAllWall();
+	if (SplineIndex != (ArrayOfSplines.Num() - 1))
+		ArrayOfSplines.RemoveAt(SplineIndex);
+	FString Msg = "Spline " + FString::FromInt(SplineIndex + 1) + " Is Destroyed";
+	Message.ExecuteIfBound(Msg);
+}
+
+void AInteractiveArchController::SwitchController()
+{
+	if (IsDynamicMesh) {
+		//bAssignment3 = true;
+		SelectionWidget->RemoveFromViewport();
+		DisplayWidget->AddToViewport(0);
+		//GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Blue, "jausdkhs");
+		UEnhancedInputLocalPlayerSubsystem* SubSystem = GetLocalPlayer()->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
+		SubSystem->ClearAllMappings();
+		SubSystem->AddMappingContext(MappingContext, 0);
+		IsDynamicMesh = false;
+	}
+	else {
+		DisplayWidget->RemoveFromViewport();
+		SelectionWidget->AddToViewport(0);
+		UEnhancedInputLocalPlayerSubsystem* SubSystem = GetLocalPlayer()->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
+		SubSystem->ClearAllMappings();
+		SubSystem->AddMappingContext(Mapping, 0);
+		IsDynamicMesh = true;
+	}
 }
