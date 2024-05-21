@@ -91,7 +91,7 @@ void AOrthographicCameraPawn::SetupPlayerInputComponent(UInputComponent* PlayerI
 		check(LocalPlayer);
 		UEnhancedInputLocalPlayerSubsystem* SubSystem = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
 		check(SubSystem);
-		//SubSystem->ClearAllMappings();
+		SubSystem->ClearAllMappings();
 		SubSystem->AddMappingContext(OrthographicCameraMapping, 0);
 	}
 }

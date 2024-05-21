@@ -28,7 +28,7 @@ AAFirstPersonPawn::AAFirstPersonPawn()
 	FloatingMovement = CreateDefaultSubobject<UFloatingPawnMovement>(TEXT("Floating Movement"));
 	MoveScale = 1.0f;
 
-	DataAsset = LoadObject<UUPawnAttributeAsset>(this, TEXT("/Script/Assignment_1_2.UPawnAttributeAsset'/Game/Assignment_2/Assets/FPPAsset.FPPAsset'"));
+	DataAsset = LoadObject<UUPawnAttributeAsset>(this, TEXT("/Script/Assignment_1_2.UPawnAttributeAsset'/Assignment_1_2/Assignment_2/Assets/FPPAsset.FPPAsset'"));
 }
 
 // Called when the game starts or when spawned

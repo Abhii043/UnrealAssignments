@@ -102,7 +102,7 @@ void APespectiveCameraPawn::SetupPlayerInputComponent(UInputComponent* PlayerInp
 		UEnhancedInputLocalPlayerSubsystem* Subsystem = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
 		check(Subsystem);
 
-		//Subsystem->ClearAllMappings(); 
+		Subsystem->ClearAllMappings(); 
 		Subsystem->AddMappingContext(PawnInputmappingContext, 0);
 	}
 }

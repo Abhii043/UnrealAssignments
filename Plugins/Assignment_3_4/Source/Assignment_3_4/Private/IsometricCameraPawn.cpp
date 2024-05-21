@@ -84,7 +84,7 @@ void AIsometricCameraPawn::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 		check(LocalPlayer);
 		UEnhancedInputLocalPlayerSubsystem* SubSystem = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
 		check(SubSystem);
-		//SubSystem->ClearAllMappings();
+		SubSystem->ClearAllMappings();
 		SubSystem->AddMappingContext(IsometricCameraMapping, 0);
 	}
 }

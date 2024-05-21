@@ -47,7 +47,7 @@ ATP_ThirdPersonCharacter::ATP_ThirdPersonCharacter()
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
-	DataAsset = LoadObject<UUPawnAttributeAsset>(this, TEXT("/Script/Assignment_1_2.UPawnAttributeAsset'/Game/Assignment_2/Assets/ThirdPersonAsset.ThirdPersonAsset'"));
+	DataAsset = LoadObject<UUPawnAttributeAsset>(this, TEXT("/Script/Assignment_1_2.UPawnAttributeAsset'/Assignment_1_2/Assignment_2/Assets/ThirdPersonAsset.ThirdPersonAsset'"));
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
 }

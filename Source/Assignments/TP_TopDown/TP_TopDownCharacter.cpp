@@ -49,7 +49,7 @@ ATP_TopDownCharacter::ATP_TopDownCharacter()
 	CachedDestination = FVector::ZeroVector;
 	FollowTime = 0.f;
 
-	DataAsset = LoadObject<UUPawnAttributeAsset>(this, TEXT("/Script/Assignment_1_2.UPawnAttributeAsset'/Game/Assignment_2/Assets/TopDownPersonAsset.TopDownPersonAsset'"));
+	DataAsset = LoadObject<UUPawnAttributeAsset>(this, TEXT("/Script/Assignment_1_2.UPawnAttributeAsset'/Assignment_1_2/Assignment_2/Assets/TopDownPersonAsset.TopDownPersonAsset'"));
 }
 
 void ATP_TopDownCharacter::Tick(float DeltaSeconds)

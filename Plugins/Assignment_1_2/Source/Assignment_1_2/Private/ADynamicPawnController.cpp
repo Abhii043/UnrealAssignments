@@ -11,7 +11,7 @@
 
 AADynamicPawnController::AADynamicPawnController() : index{0} {
 
-	DataTable = LoadObject<UDataTable>(nullptr, TEXT("/Script/Engine.DataTable'/Game/Assignment_2/DataTable/PawnClassSelector.PawnClassSelector'"));
+	DataTable = LoadObject<UDataTable>(nullptr, TEXT("/Script/Engine.DataTable'/Assignment_1_2/Assignment_2/DataTable/PawnClassSelector.PawnClassSelector'"));
 }
 
 void AADynamicPawnController::BeginPlay()

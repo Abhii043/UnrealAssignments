@@ -85,7 +85,7 @@ void ATopDownPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 		check(LocalPlayer);
 		UEnhancedInputLocalPlayerSubsystem* SubSystem = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
 		check(SubSystem);
-		//SubSystem->ClearAllMappings();
+		SubSystem->ClearAllMappings();
 		SubSystem->AddMappingContext(MappingContext, 0);
 	}
 

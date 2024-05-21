@@ -326,14 +326,14 @@ void AInteractiveArchController::Spawn()
 				SpawnedCharacter = World->SpawnActor<APawn>(CharacterClass, LastHitLocation, Rotation, Params);
 			}
 
-			check(GetLocalPlayer());
-			SubSystem = GetLocalPlayer()->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
-			check(SubSystem);
-			SubSystem->AddMappingContext(Mapping, 0);
-			SubSystem->AddMappingContext(CameraPawnMapping, 0);
-
 			if (SpawnedCharacter) {
 				Possess(SpawnedCharacter);
+
+				check(GetLocalPlayer());
+				SubSystem = GetLocalPlayer()->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
+				check(SubSystem);
+				SubSystem->AddMappingContext(Mapping, 0);
+				SubSystem->AddMappingContext(CameraPawnMapping, 0);
 			}
 			else {
 				UE_LOG(LogTemp, Warning, TEXT("Failed to spawn character"));
@@ -437,7 +437,7 @@ void AInteractiveArchController::NewestSpline()
 
 void AInteractiveArchController::UndoWall()
 {
-	ArrayOfSplines[SplineIndex]->Undo();
+	if(ArrayOfSplines[SplineIndex]){ArrayOfSplines[SplineIndex]->Undo();}
 	if (ArrayOfSplines[SplineIndex]->Points.Num() >= 1) {
 		FString Msg = "Wall " + FString::FromInt(ArrayOfSplines[SplineIndex]->Points.Num() - 1) + " Of Spline " + FString::FromInt(SplineIndex + 1) + " Is Destroyed";
 		Message.ExecuteIfBound(Msg);
@@ -461,18 +461,18 @@ void AInteractiveArchController::SwitchController()
 {
 	if (IsDynamicMesh) {
 		SelectionWidget->RemoveFromViewport();
-		DisplayWidget->AddToViewport(0);
+		DisplayWidget->AddToViewport();
 		UEnhancedInputLocalPlayerSubsystem* SubSystem = GetLocalPlayer()->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
-		SubSystem->ClearAllMappings();
+		SubSystem->RemoveMappingContext(Mapping);
 		SubSystem->AddMappingContext(MappingContext, 0);
 		SubSystem->AddMappingContext(CameraPawnMapping, 0);
 		IsDynamicMesh = false;
 	}
 	else {
 		DisplayWidget->RemoveFromViewport();
-		SelectionWidget->AddToViewport(0);
+		SelectionWidget->AddToViewport();
 		UEnhancedInputLocalPlayerSubsystem* SubSystem = GetLocalPlayer()->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
-		SubSystem->ClearAllMappings();
+		SubSystem->RemoveMappingContext(MappingContext);
 		SubSystem->AddMappingContext(Mapping, 0);
 		SubSystem->AddMappingContext(CameraPawnMapping, 0);
 		IsDynamicMesh = true;
