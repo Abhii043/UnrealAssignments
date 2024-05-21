@@ -123,6 +123,24 @@ void AInteractiveArchController::BeginPlay()
 	if (_DisplayWidget) {
 		DisplayWidget = CreateWidget<UDisplayMessage>(this, _DisplayWidget);
 	}
+	if (SelectionWidget) {
+		SelectionWidget->ScrollBox_1->Controller.BindUFunction(this, "SpawnMesh");
+		SelectionWidget->ScrollBox_1->ApplyMaterial.BindUFunction(this, "SetMaterial");
+		SelectionWidget->ScrollBox_1->ApplyTexture.BindUFunction(this, "SetTexture");
+		SelectionWidget->ScrollBox_2->Controller.BindUFunction(this, "SpawnMesh");
+		SelectionWidget->ScrollBox_2->ApplyMaterial.BindUFunction(this, "SetMaterial");
+		SelectionWidget->ScrollBox_2->ApplyTexture.BindUFunction(this, "SetTexture");
+		SelectionWidget->ScrollBox_3->Controller.BindUFunction(this, "SpawnMesh");
+		SelectionWidget->ScrollBox_3->ApplyMaterial.BindUFunction(this, "SetMaterial");
+		SelectionWidget->ScrollBox_3->ApplyTexture.BindUFunction(this, "SetTexture");
+	}
+	if (SelectionWidget && !SelectionWidget->IsInViewport())
+	{
+		SelectionWidget->AddToViewport();
+		SelectionWidget->ScrollBox_1->SetVisibility(ESlateVisibility::Hidden);
+		SelectionWidget->ScrollBox_2->SetVisibility(ESlateVisibility::Hidden);
+		SelectionWidget->ScrollBox_3->SetVisibility(ESlateVisibility::Hidden);
+	}
 	Spawn();
 }
 
@@ -177,19 +195,7 @@ void AInteractiveArchController::OnLeftClick()
 					SelectionWidget->ScrollBox_3->SetVisibility(ESlateVisibility::Visible);
 				}
 
-				SelectionWidget->ScrollBox_1->Controller.BindUFunction(this, "SpawnMesh");
-				SelectionWidget->ScrollBox_1->ApplyMaterial.BindUFunction(this, "SetMaterial");
-				SelectionWidget->ScrollBox_1->ApplyTexture.BindUFunction(this, "SetTexture");
-				SelectionWidget->ScrollBox_2->Controller.BindUFunction(this, "SpawnMesh");
-				SelectionWidget->ScrollBox_2->ApplyMaterial.BindUFunction(this, "SetMaterial");
-				SelectionWidget->ScrollBox_2->ApplyTexture.BindUFunction(this, "SetTexture");
-				SelectionWidget->ScrollBox_3->Controller.BindUFunction(this, "SpawnMesh");
-				SelectionWidget->ScrollBox_3->ApplyMaterial.BindUFunction(this, "SetMaterial");
-				SelectionWidget->ScrollBox_3->ApplyTexture.BindUFunction(this, "SetTexture");
-			}
-			if (SelectionWidget && !SelectionWidget->IsInViewport())
-			{
-				SelectionWidget->AddToViewport();
+				
 			}
 		}
 	}
@@ -308,11 +314,6 @@ void AInteractiveArchController::Spawn()
 			GetPawn()->Destroy();
 		}
 
-		check(GetLocalPlayer());
-		UEnhancedInputLocalPlayerSubsystem* SubSystem = GetLocalPlayer()->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
-		check(SubSystem);
-		SubSystem->ClearAllMappings();
-
 		if(PawnReference[index]){
 			APawn* SpawnedCharacter;
 			if (PawnReference[index] == AIsometricCameraPawn::StaticClass())
@@ -330,10 +331,16 @@ void AInteractiveArchController::Spawn()
 				Possess(SpawnedCharacter);
 
 				check(GetLocalPlayer());
-				SubSystem = GetLocalPlayer()->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
-				check(SubSystem);
-				SubSystem->AddMappingContext(Mapping, 0);
-				SubSystem->AddMappingContext(CameraPawnMapping, 0);
+				UEnhancedInputLocalPlayerSubsystem* SubSystem = GetLocalPlayer()->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
+				if (SubSystem) {
+					if (SelectionWidget->IsInViewport()) {
+						SubSystem->AddMappingContext(Mapping, 0);
+					}
+					else {
+						SubSystem->AddMappingContext(MappingContext, 0);
+					}
+					SubSystem->AddMappingContext(CameraPawnMapping, 0);
+				}
 			}
 			else {
 				UE_LOG(LogTemp, Warning, TEXT("Failed to spawn character"));
@@ -471,6 +478,11 @@ void AInteractiveArchController::SwitchController()
 	else {
 		DisplayWidget->RemoveFromViewport();
 		SelectionWidget->AddToViewport();
+		if (SelectionWidget) {
+				SelectionWidget->ScrollBox_1->SetVisibility(ESlateVisibility::Hidden);
+				SelectionWidget->ScrollBox_2->SetVisibility(ESlateVisibility::Hidden);
+				SelectionWidget->ScrollBox_3->SetVisibility(ESlateVisibility::Hidden);
+		}
 		UEnhancedInputLocalPlayerSubsystem* SubSystem = GetLocalPlayer()->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
 		SubSystem->RemoveMappingContext(MappingContext);
 		SubSystem->AddMappingContext(Mapping, 0);
