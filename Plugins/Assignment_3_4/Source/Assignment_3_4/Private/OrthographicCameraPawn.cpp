@@ -114,8 +114,8 @@ void AOrthographicCameraPawn::CameraZoom(const FInputActionValue& ActionValue)
 void AOrthographicCameraPawn::RotateX(const FInputActionValue& ActionValue)
 {
 	FRotator value = FRotator(ActionValue[0],ActionValue[1],ActionValue[2]);
-	value *= GetWorld()->GetDeltaSeconds() * 50;
-	value += GetActorRotation() * 2;
+	value *= GetWorld()->GetDeltaSeconds() * 150;
+	value += GetActorRotation();
 	SetActorRotation(value);
 }
 

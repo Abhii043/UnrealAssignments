@@ -12,14 +12,15 @@ void SMeshSelectionScrollBox::Construct(const FArguments& InArgs)
 	FSlateColorBrush* ColorBrush = new FSlateColorBrush(FLinearColor(0.12549f, 0.043137f, 0.101961f, 1.0f));
 	ColorBrush->DrawAs = ESlateBrushDrawType::RoundedBox;
 	FSlateBrushOutlineSettings OutlineSettings{};
-	OutlineSettings.CornerRadii = FVector4{ 5.f , 5.f ,5.f , 5.f };
+	OutlineSettings.CornerRadii = FVector4{ 10.f , 10.f ,10.f , 10.f };
 	OutlineSettings.RoundingType = ESlateBrushRoundingType::FixedRadius;
 	ColorBrush->OutlineSettings = OutlineSettings;
 	RootBorder->SetBorderImage(ColorBrush);
 
 	RootVerticalBox = SNew(SVerticalBox);
-	RootBoxName = SNew(STextBlock).Font(FSlateFontInfo(FPaths::EngineContentDir() / TEXT("Slate/Fonts/Roboto-Regular.ttf"), 20)).ColorAndOpacity(FColor::White);
+	RootBoxName = SNew(STextBlock).Font(FSlateFontInfo(FPaths::EngineContentDir() / TEXT("Slate/Fonts/Roboto-Regular.ttf"), 25)).ColorAndOpacity(FColor::White);
 	ScrollBox = SNew(SScrollBox).Orientation(Orient_Horizontal);
+	ScrollBox->SetScrollBarPadding(8);
 
 	MeshDataAssetManager = InArgs._InMeshAssetManager;
 	ScrollBoxType = InArgs._InScrollBoxType;
@@ -27,7 +28,7 @@ void SMeshSelectionScrollBox::Construct(const FArguments& InArgs)
 
 	ScrollBoxSelection();
 
-	RootVerticalBox->AddSlot().HAlign(HAlign_Center).AutoHeight()
+	RootVerticalBox->AddSlot().HAlign(HAlign_Left).AutoHeight().Padding(15,5,0,5)
 		[
 			RootBoxName.ToSharedRef()
 		];
@@ -92,7 +93,7 @@ void SMeshSelectionScrollBox::RefreshAssetMesh()
 				ColorBrush->OutlineSettings = OutlineSettings;
 
 				ScrollBoxBorder->SetBorderImage(ColorBrush);
-				ScrollBoxBorder->SetPadding(FMargin(1,1,1,1));
+				ScrollBoxBorder->SetPadding(FMargin(15,15,15,15));
 
 				ScrollBoxBorder->SetContent(ThumbnailImage.ToSharedRef());
 				TSharedPtr<SVerticalBox> ScrollBoxVerticalBox = SNew(SVerticalBox);
