@@ -13,7 +13,9 @@ enum class ERailingType {
 	WindsorTurnedCapital,
 	RoundTurnedCapital,
 	AcornCapital,
-	GothicstarTop,
+	GothicStarTop,
+	RoundedOverTop,
+	RoundedStarTop,
 	PyramidTop,
 };
 
@@ -31,25 +33,25 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ProceduralMeshProps")
 	TArray<FVector> Vertices;
-
+ 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ProceduralMeshProps")
 	TArray<int32> Triangles;
-
+ 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ProceduralMeshProps")
 	TArray<FVector> Normals;
-
+ 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ProceduralMeshProps")
 	TArray<FVector2D> UVs;
-
+ 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ProceduralMeshProps")
 	TArray<FProcMeshTangent> Tangents;
-
+ 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ProceduralMeshProps")
-	TArray<FLinearColor> Colors; 
-
+	TArray<FLinearColor> Colors;
+ 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ProceduralMeshProps")
 	ERailingType Railing;
-
+ 
 	UPROPERTY()
 	int32 SectionIdx;
 
@@ -62,41 +64,51 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	UFUNCTION()
-	int AddNewVertex(const FVector& VertexCordinates);
-
-	// TOP PYRAMID
-	UFUNCTION()
-	int AddNewVertexCubePyramid(const FVector& VertexCordinates);
-
+UFUNCTION()
+	int AddNewVertex(const FVector& VertexCordinates);	
+ 
 	UFUNCTION()
 	int AddUV(const FVector2D& UVCordinates);
-
+ 
 	UFUNCTION()
 	void DrawTriangleFromVertex(int32 Vertex0, int32 Vertex1, int32 Vertex2);
-
+ 
 	UFUNCTION(BlueprintCallable, Category = "Defaults")
-	void GenerateFenceRailing(ERailingType& FenceRailing);
-
+	void GenerateFenceRailing(float length, float width, float Height);
+ 
 	UFUNCTION(BlueprintCallable, Category = "Defaults")
 	void GenerateCube(int32& SectionIndex, const FVector& Dimesions, const FVector& LocationOffset);
-	
+ 
+	UFUNCTION(BlueprintCallable, Category = "Defaults")
+	void GenerateSphere(int32& SectionIndex, const float& Radius, const int32& RingCount, const int32& PointCount, const FVector& LocationOffset);
+ 
+	UFUNCTION(BlueprintCallable, Category = "Defaults")
+	void GenerateCubePyramid(int32& SectionIndex, const FVector& Dimesions, const FVector& LocationOffset);
+	UFUNCTION(BlueprintCallable, Category = "Defaults")
+	void GenerateSidePyramidsLeft(int32& SectionIndex, const FVector& Dimesions, const FVector& LocationOffset);
+ 
+	UFUNCTION(BlueprintCallable, Category = "Defaults")
+	void GenerateSidePyramidsRight(int32& SectionIndex, const FVector& Dimesions, const FVector& LocationOffset);
+ 
+	UFUNCTION(BlueprintCallable, Category = "Defaults")
+	void GenerateBellShape(int32& SectionIndex, float BaseRadius, float Height1, float RimRadius, float CurvatureFactor, int NumSlices, int NumStacks, const FVector& LocationOffset);
+ 
+	UFUNCTION(BlueprintCallable, Category = "Defaults")
+	void GenerateCurvedCone(int32& SectionIndex, const int32& NumSegments, const int32& NumRings, const int32& Radius, const int32& Height, const FVector& LocationOffset);
+	UFUNCTION(BlueprintCallable, Category = "Defaults")
+	void GenerateOval(int32& SectionIndex, const float& Radius, const int32& RingCount, const int32& PointCount, const FVector& LocationOffset);
+ 
 	UFUNCTION(BlueprintCallable, Category = "Defaults")
 	void GeneratePyramid(int32& SectionIndex, const FVector& Dimensions, const FVector& LocationOffset);
+ 
+	UFUNCTION(BlueprintCallable, Category = "Defaults")
+	void GenerateHemiSphere(int32& SectionIndex, const float& Radius, const int32& RingCount, const int32& PointCount, const FVector& LocationOffset);
+ 
+	UFUNCTION(BlueprintCallable, Category = "Defaults")
+	void GenerateCylinder(int32& SectionIndex, const float& Radius, const float& Height, const int32& Segments, const FVector& LocationOffset);
 
 	UFUNCTION(BlueprintCallable, Category = "Defaults")
-	void GenerateSphere(int32& SectionIndex, const float& Radius, const int32& RingCount, const int32& PointCount);
+	void GenerateSemiCircle(int32& SectionIndex, const float& Radius, bool isNegativeside, const FVector& LocationOffset);
 
-	UFUNCTION(BlueprintCallable, Category = "Defaults")
-	void GenerateCubePyramid(int32& SectionIndex, const FVector& Dimesions);
-
-	UFUNCTION(BlueprintCallable, Category = "Defaults")
-	void GenerateBellShape(int32& SectionIndex, float BaseRadius, float Height1, float RimRadius, float CurvatureFactor, int NumSlices, int NumStacks);
-
-	UFUNCTION(BlueprintCallable, Category = "Defaults")
-	void GenerateCurvedCone(int32& SectionIndex, const int32& NumSegments, const int32& NumRings, const int32& Radius, const int32& Height);
-	
-	UFUNCTION(BlueprintCallable, Category = "Defaults")
-	void GenerateOval(int32& SectionIndex, const float& Radius, const int32& RingCount, const int32& PointCount);
-
+	//void GenerateFence(float length, float width, float Height);
 };

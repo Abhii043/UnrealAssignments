@@ -32,8 +32,8 @@ class ASSIGNMENT_5_6_API AFenceMeshActor : public AActor
 {
 	GENERATED_BODY()
 	
-UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"), Category = "Fence Modificaiton")
-	FFenceProperties FencePropeties;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"), Category = "Fence Modificaiton")
+	FFenceProperties FenceProperties;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"), Category = "Fence Modificaiton")
 	USceneComponent* SceneComponent;
@@ -42,16 +42,13 @@ UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true")
 	USplineComponent* SplineComponent;
 	
 	UPROPERTY()
-	TArray<UStaticMeshComponent*> StaticMeshComponentArr; 
+	TArray<UStaticMeshComponent*> VerticalStaticMeshComponentArr;
 	
 	UPROPERTY()
-	TArray<UStaticMeshComponent*> H_StaticMeshComponentArr;
-
+	TArray<UStaticMeshComponent*> H_StaticMeshComponentArr; 
+	
 	UPROPERTY()
-	bool isProceduralMesh;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true" ,ClampMin = 0 , UIMin = 0), Category = "Fence Modificaiton")
-	int32 NoOfSplinePoints;
+	TArray<float> HorizontalMeshLengthArr;
 
 	UPROPERTY(EditAnywhere,meta = (AllowPrivateAccess = "true"), Category = "Fence Modificaiton")
 	UStaticMesh* StaticMesh; 
@@ -59,26 +56,26 @@ UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true")
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"), Category = "Fence Modificaiton")
 	UStaticMesh* HorizontalFenceStaticMesh;
 
-public:	
-	// Sets default values for this actor's properties
-	AFenceMeshActor();
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Fence Modification")
-	TSubclassOf<AVerticalRailActor> VerticalRailClassRef;
-
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	virtual void OnConstruction(const FTransform& Transform);
 
 public:	
+	AFenceMeshActor();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Fence Modification")
+	TSubclassOf<AVerticalRailActor> VerticalRailClassRef;
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	void GenerateFence();
+	UFUNCTION(BlueprintCallable , Category = "Fence Modificaiton")
+	void DestroyStaticFenceComponents();
 
 	UFUNCTION(BlueprintCallable , Category = "Fence Modificaiton")
-	void deleteComponents();
+	void GenerateStaticFence();
 
-	void SpawnVerticalMeshActor(const FVector& Location);
+	UFUNCTION(BlueprintCallable , Category = "Fence Modificaiton")
+	void GenerateProceduralMesh();
+
 };
