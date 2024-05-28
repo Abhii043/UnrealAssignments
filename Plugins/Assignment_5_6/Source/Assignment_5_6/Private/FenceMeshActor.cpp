@@ -71,7 +71,7 @@ void AFenceMeshActor::GenerateStaticFence()
 		SplineComponent->SetSplinePointType(index, ESplinePointType::Linear);
 	}
 
-	const float LengthOfStatticFenceMesh = FenceProperties.width + FenceProperties.spacing;
+	const float LengthOfStatticFenceMesh = FenceProperties.length + FenceProperties.spacing;
 	const float NoOfStaticFences = SplineLength / LengthOfStatticFenceMesh;
 
 	for (int index{}; index < NoOfStaticFences; ++index) {
@@ -84,6 +84,7 @@ void AFenceMeshActor::GenerateStaticFence()
 		VerticalStaticMesh->SetStaticMesh(StaticMesh);
 		VerticalStaticMesh->SetWorldScale3D(FVector(FenceProperties.length/15, FenceProperties.width/15, FenceProperties.height/200));
 		VerticalStaticMesh->RegisterComponent();
+		//VerticalStaticMesh->AddLocalOffset(FVector(FenceProperties.spacing,0,0));
 
 		VerticalStaticMeshComponentArr.Add(VerticalStaticMesh);
 	}
@@ -99,7 +100,8 @@ void AFenceMeshActor::GenerateStaticFence()
 
 		FRotator RotationAt = SplineComponent->GetRotationAtSplinePoint(index , ESplineCoordinateSpace::World);
 
-		float HorizontalMeshLength = FVector::Dist(StartLocation, EndLocation);
+		float LengthBetweenPoints = FVector::Dist(StartLocation, EndLocation);
+		float HorizontalMeshLength = LengthOfStatticFenceMesh * (int(LengthBetweenPoints / LengthOfStatticFenceMesh) + 1);
 		HorizontalMeshLengthArr.Add(HorizontalMeshLength);
 		HorizontalMeshLengthArr.Add(HorizontalMeshLength);
 
@@ -119,6 +121,7 @@ void AFenceMeshActor::GenerateStaticFence()
 		HorizontalFence_1->SetWorldLocation(FVector(MiddleVec.X, MiddleVec.Y , MiddleVec.Z + FenceProperties.height/4));
 		HorizontalFence_1->SetWorldRotation(RotationAt);
 		HorizontalFence_1->SetStaticMesh(HorizontalFenceStaticMesh);
+		HorizontalFence_1->AddLocalOffset(FVector(-FenceProperties.spacing/2,0,0));
 		H_StaticMeshComponentArr.Add(HorizontalFence_1);
 
 		UStaticMeshComponent* HorizontalFence_2 = NewObject<UStaticMeshComponent>(this);
@@ -128,6 +131,7 @@ void AFenceMeshActor::GenerateStaticFence()
 		HorizontalFence_2->SetWorldLocation(FVector(MiddleVec.X, MiddleVec.Y, MiddleVec.Z - (FenceProperties.height / 4)));
 		HorizontalFence_2->SetWorldRotation(RotationAt);
 		HorizontalFence_2->SetStaticMesh(HorizontalFenceStaticMesh);
+		HorizontalFence_2->AddLocalOffset(FVector(-FenceProperties.spacing / 2, 0, 0));
 		H_StaticMeshComponentArr.Add(HorizontalFence_2);
 	}
 }

@@ -118,6 +118,12 @@ void AVerticalRailActor::GenerateFenceRailing(float length, float width, float h
 		break;
 	case ERailingType::RoundedStarTop:
 		GenerateCube(SectionIdx, { length * (3 / 4),  width * (3 / 4), height / 200 }, { 0, 0, (height + (height / 200)) / 2 });
+		GenerateCube(SectionIdx, { length, width, height / 20 }, { 0, 0, (height + (height / 20)) / 2 + (height / 200) });
+		GenerateCylinder(SectionIdx, length / 2, width, 32, { 0, 0, (height) / 2 + (height / 200) + (height / 20) });
+		GenerateSemiCircle(SectionIdx, length / 2, 1, { 0, -width / 2, (height) / 2 + (height / 200) + (height / 20) });
+		GenerateSemiCircle(SectionIdx, length / 2, 0, { 0, width / 2, (height) / 2 + (height / 200) + (height / 20) });
+		GenerateExtraLeft(SectionIdx, length / 2, width, 32, { 0, 0, (height) / 2 + (height / 200) + (height / 20) });
+		GenerateExtraRight(SectionIdx, length / 2, width, 32, { 0, 0, (height) / 2 + (height / 200) + (height / 20) });
 		break;
 	case ERailingType::PyramidTop:
 		GenerateCube(SectionIdx, { length * (3 / 4),  width * (3 / 4), height / 200 }, { 0, 0,(height + (height / 200)) / 2 });
@@ -953,5 +959,310 @@ void AVerticalRailActor::GenerateSemiCircle(int32& SectionIndex, const float& Ra
 		UVs.Add({ 0.0, 1.0 });
 	}
 
+	ProceduralMeshComponent->CreateMeshSection_LinearColor(SectionIndex++, Vertices, Triangles, Normals, UVs, Colors, Tangents, true);
+}
+
+void AVerticalRailActor::GenerateExtraLeft(int32& SectionIndex, const float& Radius, const float& Height, const int32& Segments, const FVector& LocationOffset) {
+
+	Vertices.Reset();
+	Triangles.Reset();
+	Normals.Reset();
+	UVs.Reset();
+	Tangents.Reset();
+	Colors.Reset();
+
+	// For curve part of cylinder
+	// Generate the vertices, normals, UVs, and tangents for the cylinder
+	for (int32 s = 0; s <= Segments; s++)
+	{
+		float AngleCylinder = static_cast<float>(s) / Segments * (PI / 2);
+		float X = Radius * FMath::Cos(AngleCylinder);
+		float Y = Radius * FMath::Sin(AngleCylinder);
+
+		Vertices.Add(LocationOffset + FVector(X, -Height / 2.0f, Y));
+		Vertices.Add(LocationOffset + FVector(X, Height / 2.0f, Y));
+
+		Normals.Add(FVector(FMath::Cos(AngleCylinder), FMath::Sin(AngleCylinder), 0.0f));
+		Normals.Add(FVector(FMath::Cos(AngleCylinder), FMath::Sin(AngleCylinder), 0.0f));
+
+		UVs.Add(FVector2D(static_cast<float>(s) / Segments, 0.0f));
+		UVs.Add(FVector2D(static_cast<float>(s) / Segments, 1.0f));
+
+		FVector TangentX = FVector(-FMath::Sin(AngleCylinder), FMath::Cos(AngleCylinder), 0.0f);
+		FVector TangentY = FVector(FMath::Cos(AngleCylinder), FMath::Sin(AngleCylinder), 0.0f);
+		FVector TangentZ = FVector(0.0f, 0.0f, 1.0f);
+
+		Tangents.Add(FProcMeshTangent(TangentX, false));
+		Tangents.Add(FProcMeshTangent(TangentY, false));
+	}
+	// 0-65
+	// Generate the triangle indices for both sides
+	for (int32 s = 0; s < Segments; s++)
+	{
+		int32 i0 = s * 2;
+		int32 i1 = i0 + 1;
+		int32 i2 = (s + 1) * 2;
+		int32 i3 = i2 + 1;
+
+		// Outer side
+		Triangles.Add(i0);
+		Triangles.Add(i2);
+		Triangles.Add(i1);
+
+		Triangles.Add(i1);
+		Triangles.Add(i2);
+		Triangles.Add(i3);
+
+		// Inner side (reverse winding)
+		Triangles.Add(i0);
+		Triangles.Add(i1);
+		Triangles.Add(i2);
+
+		Triangles.Add(i1);
+		Triangles.Add(i3);
+		Triangles.Add(i2);
+	}
+
+	// Generate the vertex colors
+	for (int32 i = 0; i < Vertices.Num(); i++)
+	{
+		Colors.Add(FLinearColor(1.0f, 0.0f, 1.0f, 1.0f));
+	}
+
+
+	// For 2 triangle shapes
+	// Generate the vertices, normals, UVs, and tangents for the cylinder
+	for (int32 s = 0; s < Segments; s++) // 66 - 97
+	{
+		float AngleCylinder = static_cast<float>(s) / Segments * (PI / 2);
+		float X = Radius * FMath::Cos(AngleCylinder);
+		float Y = Radius * FMath::Sin(AngleCylinder);
+
+		Vertices.Add(LocationOffset + FVector(X, -Height / 2.0f, Y));
+		UVs.Add(FVector2D(static_cast<float>(s) / Segments, 0.0f));
+	}
+	Vertices.Add(FVector(Radius, -Height/2.0f, Radius) + LocationOffset); // 98
+
+	for (int32 s = 0; s < Segments; s++) // 99 - 130
+	{
+		float AngleCylinder = static_cast<float>(s) / Segments * (PI / 2);
+		float X = Radius * FMath::Cos(AngleCylinder);
+		float Y = Radius * FMath::Sin(AngleCylinder);
+
+		Vertices.Add(LocationOffset + FVector(X, Height / 2.0f, Y));
+		UVs.Add(FVector2D(static_cast<float>(s) / Segments, 0.0f));
+	}
+	Vertices.Add(FVector(Radius, Height/2.0f, Radius) + LocationOffset); // 131
+
+
+	for (int32 s = Segments * 2 + 1; s < Segments * 3 + 1; s++)
+	{
+		int32 i0 = s;
+		int32 i1 = s + 1;
+		int32 i2 = Segments * 3 + 2;
+
+		// Outer side
+		Triangles.Add(i0);
+		Triangles.Add(i1);
+		Triangles.Add(i2);
+	}
+	for (int32 s = Segments * 3 + 3; s < Segments * 4 + 2; s++)
+	{
+
+		int32 i0 = s;
+		int32 i1 = s + 1;
+		int32 i2 = Segments * 4 + 3;
+
+		// Outer side
+		Triangles.Add(i2);
+		Triangles.Add(i1);
+		Triangles.Add(i0);
+	}
+
+
+	// For 2 planes
+	Vertices.Add(LocationOffset + FVector(Radius, Height/2.0f, 0)); // 132
+	Vertices.Add(LocationOffset + FVector(Radius, -Height/2.0f, 0));
+	Vertices.Add(LocationOffset + FVector(Radius, Height/2.0f, Radius));
+	Vertices.Add(LocationOffset + FVector(Radius, -Height/2.0f, Radius));
+
+	Triangles.Add(Segments * 4 + 4);
+	Triangles.Add(Segments * 4 + 5);
+	Triangles.Add(Segments * 4 + 6);
+
+	Triangles.Add(Segments * 4 + 5);
+	Triangles.Add(Segments * 4 + 7);
+	Triangles.Add(Segments * 4 + 6);
+
+	Vertices.Add(LocationOffset + FVector(Radius, -Height / 2.0f, Radius)); // 136
+	Vertices.Add(LocationOffset + FVector(0, -Height / 2.0f, Radius));
+	Vertices.Add(LocationOffset + FVector(Radius, Height / 2.0f, Radius));
+	Vertices.Add(LocationOffset + FVector(0, Height / 2.0f, Radius));
+
+	Triangles.Add(Segments * 4 + 8);
+	Triangles.Add(Segments * 4 + 9);
+	Triangles.Add(Segments * 4 + 10);
+
+	Triangles.Add(Segments * 4 + 9);
+	Triangles.Add(Segments * 4 + 11);
+	Triangles.Add(Segments * 4 + 10);
+
+	// Add the mesh to the procedural mesh component
+	ProceduralMeshComponent->CreateMeshSection_LinearColor(SectionIndex++, Vertices, Triangles, Normals, UVs, Colors, Tangents, true);
+}
+
+void AVerticalRailActor::GenerateExtraRight(int32& SectionIndex, const float& Radius, const float& Height, const int32& Segments, const FVector& LocationOffset) {
+	Vertices.Reset();
+	Triangles.Reset();
+	Normals.Reset();
+	UVs.Reset();
+	Tangents.Reset();
+	Colors.Reset();
+
+	// For curve part of cylinder
+	// Generate the vertices, normals, UVs, and tangents for the cylinder
+	for (int32 s = 0; s <= Segments; s++)
+	{
+		float AngleCylinder = static_cast<float>(s) / Segments * (PI / 2);
+		float X = Radius * FMath::Cos(AngleCylinder);
+		float Y = Radius * FMath::Sin(AngleCylinder);
+
+		Vertices.Add(LocationOffset + FVector(-X, -Height / 2.0f, Y));
+		Vertices.Add(LocationOffset + FVector(-X, Height / 2.0f, Y));
+
+		Normals.Add(FVector(FMath::Cos(AngleCylinder), FMath::Sin(AngleCylinder), 0.0f));
+		Normals.Add(FVector(FMath::Cos(AngleCylinder), FMath::Sin(AngleCylinder), 0.0f));
+
+		UVs.Add(FVector2D(static_cast<float>(s) / Segments, 0.0f));
+		UVs.Add(FVector2D(static_cast<float>(s) / Segments, 1.0f));
+
+		FVector TangentX = FVector(-FMath::Sin(AngleCylinder), FMath::Cos(AngleCylinder), 0.0f);
+		FVector TangentY = FVector(FMath::Cos(AngleCylinder), FMath::Sin(AngleCylinder), 0.0f);
+		FVector TangentZ = FVector(0.0f, 0.0f, 1.0f);
+
+		Tangents.Add(FProcMeshTangent(TangentX, false));
+		Tangents.Add(FProcMeshTangent(TangentY, false));
+	}
+	// 0-65
+	// Generate the triangle indices for both sides
+	for (int32 s = 0; s < Segments; s++)
+	{
+		int32 i0 = s * 2;
+		int32 i1 = i0 + 1;
+		int32 i2 = (s + 1) * 2;
+		int32 i3 = i2 + 1;
+
+		// Outer side
+		Triangles.Add(i0);
+		Triangles.Add(i2);
+		Triangles.Add(i1);
+
+		Triangles.Add(i1);
+		Triangles.Add(i2);
+		Triangles.Add(i3);
+
+		// Inner side (reverse winding)
+		Triangles.Add(i0);
+		Triangles.Add(i1);
+		Triangles.Add(i2);
+
+		Triangles.Add(i1);
+		Triangles.Add(i3);
+		Triangles.Add(i2);
+	}
+
+	// Generate the vertex colors
+	for (int32 i = 0; i < Vertices.Num(); i++)
+	{
+		Colors.Add(FLinearColor(1.0f, 0.0f, 1.0f, 1.0f));
+	}
+
+	// For 2 triangles
+	// Generate the vertices, normals, UVs, and tangents for the cylinder
+	for (int32 s = 0; s < Segments; s++) // 66 - 97
+	{
+		float AngleCylinder = static_cast<float>(s) / Segments * (PI / 2);
+		float X = Radius * FMath::Cos(AngleCylinder);
+		float Y = Radius * FMath::Sin(AngleCylinder);
+
+		Vertices.Add(LocationOffset + FVector(-X, -Height / 2.0f, Y));
+	}
+	Vertices.Add(FVector(-Radius, -Height / 2.0f, Radius) + LocationOffset); // 98
+
+	for (int32 s = 0; s < Segments; s++) // 99 - 130
+	{
+		float AngleCylinder = static_cast<float>(s) / Segments * (PI / 2);
+		float X = Radius * FMath::Cos(AngleCylinder);
+		float Y = Radius * FMath::Sin(AngleCylinder);
+
+		Vertices.Add(LocationOffset + FVector(-X, Height / 2.0f, Y));
+	}
+	Vertices.Add(FVector(-Radius, Height / 2.0f, Radius) + LocationOffset); // 131
+
+	for (int32 s = Segments * 2 + 1; s < Segments * 3 + 1; s++)
+	{
+		int32 i0 = s;
+		int32 i1 = s + 1;
+		int32 i2 = Segments * 3 + 2;
+
+		// Outer side
+		Triangles.Add(i2);
+		Triangles.Add(i1);
+		Triangles.Add(i0);
+
+		UVs.Add(FVector2D{ static_cast<float>(s/ (Segments * 3)), 0.0f });
+		UVs.Add(FVector2D{ static_cast<float>(s/ (Segments * 3)), 0.1f });
+	}
+	Normals.Add({ 0.0, -1.0, 0.0 });
+
+	for (int32 s = Segments * 3 + 3; s < Segments * 4 + 2; s++)
+	{
+
+		int32 i0 = s;
+		int32 i1 = s + 1;
+		int32 i2 = Segments * 4 + 3;
+
+		// Outer side
+		Triangles.Add(i0);
+		Triangles.Add(i1);
+		Triangles.Add(i2);
+
+		UVs.Add(FVector2D{ static_cast<float>(s / (Segments * 4 + 1)), 0.0f });
+		UVs.Add(FVector2D{ static_cast<float>(s / (Segments * 4 + 1)), 0.1f });
+	}
+	Normals.Add({ 0.0, 1.0, 0.0 });
+
+	// For 2 planes
+	Vertices.Add(LocationOffset + FVector(-Radius, -Height / 2.0f, 0)); // 132
+	Vertices.Add(LocationOffset + FVector(-Radius, Height / 2.0f, 0));
+	Vertices.Add(LocationOffset + FVector(-Radius, -Height / 2.0f, Radius));
+	Vertices.Add(LocationOffset + FVector(-Radius, Height / 2.0f, Radius));
+
+	Triangles.Add(Segments * 4 + 4);
+	Triangles.Add(Segments * 4 + 5);
+	Triangles.Add(Segments * 4 + 6);
+
+	Triangles.Add(Segments * 4 + 5);
+	Triangles.Add(Segments * 4 + 7);
+	Triangles.Add(Segments * 4 + 6);
+
+	Normals.Add({ -1.0, 0.0, 0.0 });
+
+	Vertices.Add(LocationOffset + FVector(0, -Height / 2.0f, Radius)); // 136
+	Vertices.Add(LocationOffset + FVector(-Radius, -Height / 2.0f, Radius));
+	Vertices.Add(LocationOffset + FVector(0, Height / 2.0f, Radius));
+	Vertices.Add(LocationOffset + FVector(-Radius, Height / 2.0f, Radius));
+
+	Triangles.Add(Segments * 4 + 8);
+	Triangles.Add(Segments * 4 + 9);
+	Triangles.Add(Segments * 4 + 10);
+
+	Triangles.Add(Segments * 4 + 9);
+	Triangles.Add(Segments * 4 + 11);
+	Triangles.Add(Segments * 4 + 10);
+
+	Normals.Add({ 0.0, 0.0, 1.0 });
+
+	// Add the mesh to the procedural mesh component
 	ProceduralMeshComponent->CreateMeshSection_LinearColor(SectionIndex++, Vertices, Triangles, Normals, UVs, Colors, Tangents, true);
 }

@@ -110,5 +110,11 @@ UFUNCTION()
 	UFUNCTION(BlueprintCallable, Category = "Defaults")
 	void GenerateSemiCircle(int32& SectionIndex, const float& Radius, bool isNegativeside, const FVector& LocationOffset);
 
+	UFUNCTION(BlueprintCallable, Category = "Defaults")
+	void GenerateExtraLeft(int32& SectionIndex, const float& Radius, const float& Height, const int32& Segments, const FVector& LocationOffset);
+
+	UFUNCTION(BlueprintCallable, Category = "Defaults")
+	void GenerateExtraRight(int32& SectionIndex, const float& Radius, const float& Height, const int32& Segments, const FVector& LocationOffset);
+
 	//void GenerateFence(float length, float width, float Height);
 };
