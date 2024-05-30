@@ -146,9 +146,18 @@ void AFenceMeshActor::GenerateProceduralMesh()
 			Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 			FVector Location = MeshComponent->GetComponentLocation();
 			FRotator Rotation = MeshComponent->GetComponentRotation();
-			auto SpawnedRail = GetWorld()->SpawnActor<AVerticalRailActor>(VerticalRailClassRef, Location, Rotation , Params);
+			auto SpawnedRail = GetWorld()->SpawnActor<AVerticalRailActor>(VerticalRailClassRef, Location, Rotation, Params);
 			SpawnedRail->GenerateFenceRailing(FenceProperties.length, FenceProperties.width, FenceProperties.height);
 			SpawnedRail->RegisterAllComponents();
+
+			UMaterialInstanceDynamic* VerticalDynamicMaterial = UMaterialInstanceDynamic::Create(FenceMaterial, this);
+			if (VerticalDynamicMaterial) {
+				/*float TileX = FenceProperties.length / 40;
+				float TileY = FenceProperties.height / 4;
+				VerticalDynamicMaterial->SetScalarParameterValue("TileX", TileX);
+				VerticalDynamicMaterial->SetScalarParameterValue("TileY", TileY);*/
+				SpawnedRail->SetVerticalMaterial(0, VerticalDynamicMaterial);
+			}
 		}
 		MeshComponent->DestroyComponent();
 	}
@@ -168,6 +177,16 @@ void AFenceMeshActor::GenerateProceduralMesh()
 			HorizontalRail->GenerateFenceRailing(HorizontalMeshLengthArr[index], FenceProperties.width/2, FenceProperties.height * 0.075);
 			index++;
 		}
+
+		UMaterialInstanceDynamic* HorizontalDynamicMaterial = UMaterialInstanceDynamic::Create(HorizontalFenceMaterial, this);
+		if (HorizontalDynamicMaterial) {
+			/*float TileX = FenceProperties.length / 4;
+			float TileY = FenceProperties.height / 40;
+			HorizontalDynamicMaterial->SetScalarParameterValue("TileX", TileX);
+			HorizontalDynamicMaterial->SetScalarParameterValue("TileY", TileY);*/
+			HorizontalRail->SetHorizontalMaterial(HorizontalDynamicMaterial);
+		}
+
 		HorizontalRail->RegisterAllComponents();
 		H_MeshComponent->DestroyComponent();
 	}

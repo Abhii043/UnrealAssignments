@@ -31,6 +31,12 @@ UCLASS()
 class ASSIGNMENT_5_6_API AFenceMeshActor : public AActor
 {
 	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"), Category = "Fence Modificaiton")
+	UMaterialInstance* FenceMaterial;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"), Category = "Fence Modificaiton")
+	UMaterialInstance* HorizontalFenceMaterial;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"), Category = "Fence Modificaiton")
 	FFenceProperties FenceProperties;
