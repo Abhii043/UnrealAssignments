@@ -124,7 +124,7 @@ void AFenceMeshActor::GenerateStaticFence()
 		FVector LeftOffset = LeftDirectionVector * (FenceProperties.width/2 + FenceProperties.width/4);
 		FVector UpOffset = UpDirectionVector * (FenceProperties.height / 4);
 		FVector DownOffset = DownDirectionVector * (FenceProperties.height / 4);
-		FVector ForwardOffset = ForwardDirectionVector * (HorizontalMeshLength / 2); 
+		FVector ForwardOffset = ForwardDirectionVector * ((HorizontalMeshLength / 2) - (LengthOfStatticFenceMesh/2));
 
 		FVector HFenceLocation1 = StartLocation + LeftOffset + UpOffset + ForwardOffset;
 		FVector HFenceLocation2 = StartLocation + LeftOffset + DownOffset + ForwardOffset;
