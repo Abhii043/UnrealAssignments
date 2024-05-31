@@ -62,6 +62,9 @@ class ASSIGNMENT_5_6_API AFenceMeshActor : public AActor
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"), Category = "Fence Modificaiton")
 	UStaticMesh* HorizontalFenceStaticMesh;
 
+	UPROPERTY()
+	float NoOfStaticFences;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

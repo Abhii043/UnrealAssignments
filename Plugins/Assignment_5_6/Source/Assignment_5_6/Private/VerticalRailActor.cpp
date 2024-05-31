@@ -111,6 +111,7 @@ void AVerticalRailActor::GenerateCube(int32& SectionIndex, const FVector& Dimens
 	Vertices.Reset();
 	Triangles.Reset();
 	Normals.Reset();
+	Normals.Empty();
 	UVs.Reset();
 	Tangents.Reset();
 	Colors.Reset();
@@ -184,7 +185,7 @@ void AVerticalRailActor::GenerateCube(int32& SectionIndex, const FVector& Dimens
 
 	for (int32 i = 0; i < Vertices.Num(); i++) {
 		if (i >= 0 && i <= 3) {
-			Normals.Add({ 0.0, 0.0, -1.0 });
+			Normals.Add(FVector{ 0.0, 0.0, -1.0 });
 		}
 		else if (i >= 4 && i <= 7) {
 			Normals.Add({ 0.0, 0.0, 1.0 });
@@ -1407,6 +1408,7 @@ void AVerticalRailActor::GenerateSideCurvedTriangleRight(int32& SectionIndex, co
 	// Add the mesh to the procedural mesh component
 	ProceduralMeshComponent->CreateMeshSection_LinearColor(SectionIndex++, Vertices, Triangles, Normals, UVs, Colors, Tangents, true);
 }
+
 void AVerticalRailActor::SetVerticalMaterial(int32 index, UMaterialInstanceDynamic* Material)
 {
 	ProceduralMeshComponent->SetMaterial(index++, Material); 
