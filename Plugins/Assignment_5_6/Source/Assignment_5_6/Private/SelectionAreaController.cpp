@@ -32,7 +32,7 @@ void ASelectionAreaController::Tick(float DeltaTime)
 
 			FVector NewDimensions = SelectionActor->GetActorScale3D() * ((SelectedBoundingBox == "Box") ? Dimensions : FVector(Radius, Radius, Radius));
 
-			Location.Z = (SelectedBoundingBox == "Box") ? NewDimensions.Z / 2 : NewDimensions.Z;
+			Location.Z += (SelectedBoundingBox == "Box") ? NewDimensions.Z / 2 : NewDimensions.Z;
 			SelectionActor->SetActorLocation(Location);
 		}
 	}
@@ -43,22 +43,24 @@ void ASelectionAreaController::SelectBoundingShape(const FString& ShapeType)
 	SelectedBoundingBox = ShapeType;
 	if (ShapeType == "Sphere") {
 		if (SelectionActor) {
-			SelectionActor->Destroy();
+			if(MeshGenerate){
+				SelectionActor->Destroy();
+			}
 			FActorSpawnParameters SpawnParams;
 			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
-			FVector Location = FVector::ZeroVector;
 			SelectionActor = GetWorld()->SpawnActor<ASelectionArea>(_SelectionActor, HitResult.Location, FRotator::ZeroRotator, SpawnParams);
 			SelectionActor->GenerateSphere(Radius , 32 ,32);
 		}
 	}
 	else if (ShapeType == "Box") {
 		if (SelectionActor) {
-			SelectionActor->Destroy();
+			if (MeshGenerate) {
+				SelectionActor->Destroy();
+			}
 			FActorSpawnParameters SpawnParams;
 			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
-			FVector Location = FVector::ZeroVector;
 			SelectionActor = GetWorld()->SpawnActor<ASelectionArea>(_SelectionActor, HitResult.Location, FRotator::ZeroRotator, SpawnParams);
 			SelectionActor->GenerateCube(Dimensions);
 		}

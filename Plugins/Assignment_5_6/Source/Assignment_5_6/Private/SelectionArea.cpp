@@ -140,6 +140,7 @@ void ASelectionArea::GenerateCube(const FVector& Dimensions)
 	}
 
 	ProceduralMeshComponent->CreateMeshSection_LinearColor(0, Vertices, Triangles, Normals, UVs, Colors, Tangents, true);
+	if(Material){ProceduralMeshComponent->SetMaterial(0,Material);}
 }
 
 void ASelectionArea::GenerateSphere(const float& Radius, const int32& RingCount, const int32& PointCount) {
@@ -180,4 +181,5 @@ void ASelectionArea::GenerateSphere(const float& Radius, const int32& RingCount,
 		}
 	}
 	ProceduralMeshComponent->CreateMeshSection_LinearColor(0, Vertices, Triangles, Normals, UVs, Colors, Tangents, true);
+	if (Material) { ProceduralMeshComponent->SetMaterial(0, Material); }
 }

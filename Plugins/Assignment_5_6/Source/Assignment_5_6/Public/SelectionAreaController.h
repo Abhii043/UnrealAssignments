@@ -17,6 +17,7 @@ class ASSIGNMENT_5_6_API ASelectionAreaController : public APlayerController
 	GENERATED_BODY()
 
 public:
+
 	UPROPERTY(EditDefaultsOnly,BlueprintReadWrite, Category = "SelectionAreaController")
 	FVector Dimensions{100,100,100};
 	
@@ -47,6 +48,12 @@ protected:
 	virtual void SetupInputComponent() override;
 
 public:
+	UFUNCTION(BlueprintCallable , Category = "SelectionAreaController")
 	void OnClick();
+
+	UPROPERTY(BlueprintReadWrite , Category = "SelectionAreaController")
 	bool MoveActor{true};
+
+	UPROPERTY(BlueprintReadWrite , Category = "SelectionAreaController")
+	bool MeshGenerate{ true };
 };
