@@ -5,6 +5,10 @@
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
 #include "SelectionArea.h"
+#include <InputMappingContext.h>
+#include <InputAction.h>
+#include "EnhancedInputComponent.h"
+#include "EnhancedInputSubsystems.h"
 #include "SelectionAreaController.generated.h"
 
 UCLASS()
@@ -31,13 +35,18 @@ public:
 	UPROPERTY(BlueprintReadWrite , Category = "SelectionAreaController")
 	FString SelectedBoundingBox{"Box"};
 
-	virtual void BeginPlay() override;
-
-	virtual void Tick(float DeltaTime) override;
-
 	UFUNCTION(BlueprintCallable , Category = "SelectionAreaController")
 	void SelectBoundingShape(const FString& ShapeType);
 
 	UFUNCTION(BlueprintCallable , Category = "SelectionAreaController")
 	void ChangeScale(const FString& Property , const float& value);
+
+protected:
+	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaTime) override;
+	virtual void SetupInputComponent() override;
+
+public:
+	void OnClick();
+	bool MoveActor{true};
 };

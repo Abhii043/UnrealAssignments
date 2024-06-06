@@ -31,7 +31,6 @@ public:
 	void GenerateSphere(const float& Radius, const int32& RingCount, const int32& PointCount);
 
 private:
-
 	UPROPERTY(VisibleDefaultsOnly, Category = "SelectionActor")
 	UProceduralMeshComponent* ProceduralMeshComponent;
 

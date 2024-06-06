@@ -11,7 +11,8 @@ public class Assignment_5_6 : ModuleRules
 		PublicIncludePaths.AddRange(
 			new string[] {
 				// ... add public include paths required here ...
-			}
+				"C:/Program Files/Epic Games/UE_5.2/Engine/Plugins/EnhancedInput/Source/EnhancedInput/Public/"
+            }
 			);
 				
 		
@@ -26,6 +27,7 @@ public class Assignment_5_6 : ModuleRules
 			new string[]
 			{
 				"Core",
+				"InputCore"
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
@@ -38,13 +40,14 @@ public class Assignment_5_6 : ModuleRules
 				"Engine",
 				"Slate",
 				"SlateCore",
-                "ProceduralMeshComponent"
+                "ProceduralMeshComponent",
+				"EnhancedInput",
+				"UMG"
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);
-		
-		
-		DynamicallyLoadedModuleNames.AddRange(
+
+        DynamicallyLoadedModuleNames.AddRange(
 			new string[]
 			{
 				// ... add any modules that your module loads dynamically here ...

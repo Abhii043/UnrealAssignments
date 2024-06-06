@@ -20,19 +20,21 @@ void ASelectionAreaController::BeginPlay()
 void ASelectionAreaController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	FCollisionQueryParams TraceParams(FName(TEXT("LineTrace")), true, SelectionActor);
+	if(MoveActor){
+		FCollisionQueryParams TraceParams(FName(TEXT("LineTrace")), true, SelectionActor);
 
-	FVector CursorWorldLocation;
-	FVector CursorWorldDirection;
-	DeprojectMousePositionToWorld(CursorWorldLocation, CursorWorldDirection);
+		FVector CursorWorldLocation;
+		FVector CursorWorldDirection;
+		DeprojectMousePositionToWorld(CursorWorldLocation, CursorWorldDirection);
 
-	if (GetWorld()->LineTraceSingleByChannel(HitResult, CursorWorldLocation, CursorWorldLocation + CursorWorldDirection * 10000, ECC_Visibility, TraceParams)) {
-		FVector Location = HitResult.Location;
+		if (GetWorld()->LineTraceSingleByChannel(HitResult, CursorWorldLocation, CursorWorldLocation + CursorWorldDirection * 10000, ECC_Visibility, TraceParams)) {
+			FVector Location = HitResult.Location;
 
-		FVector NewDimensions = SelectionActor->GetActorScale3D() * ((SelectedBoundingBox == "Box") ?  Dimensions : FVector(Radius, Radius, Radius));
+			FVector NewDimensions = SelectionActor->GetActorScale3D() * ((SelectedBoundingBox == "Box") ? Dimensions : FVector(Radius, Radius, Radius));
 
-		Location.Z = (SelectedBoundingBox == "Box") ? NewDimensions.Z / 2 : NewDimensions.Z;
-		SelectionActor->SetActorLocation(Location);
+			Location.Z = (SelectedBoundingBox == "Box") ? NewDimensions.Z / 2 : NewDimensions.Z;
+			SelectionActor->SetActorLocation(Location);
+		}
 	}
 }
 
@@ -78,4 +80,33 @@ void ASelectionAreaController::ChangeScale(const FString& Property, const float&
 	else if (Property == "DimensionZ") {
 		SelectionActor->SetActorScale3D(FVector(Scale.X, Scale.Y, Value / Dimensions.Z));
 	}
+}
+
+void ASelectionAreaController::SetupInputComponent()
+{
+	Super::SetupInputComponent();
+
+	UEnhancedInputComponent* EIC = Cast<UEnhancedInputComponent>(InputComponent);
+
+	UInputMappingContext* Mapping = NewObject<UInputMappingContext>(this);
+
+	UInputAction* ClickAction = NewObject<UInputAction>(this);
+	ClickAction->ValueType = EInputActionValueType::Boolean;
+
+	Mapping->MapKey(ClickAction, EKeys::LeftMouseButton);
+
+	EIC->BindAction(ClickAction,ETriggerEvent::Completed , this ,&ASelectionAreaController::OnClick);
+
+	if (GetLocalPlayer()) {
+		UEnhancedInputLocalPlayerSubsystem* SubSystem = GetLocalPlayer()->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
+		if(SubSystem){
+			SubSystem->AddMappingContext(Mapping, 0);
+		}
+	}
+}
+
+void ASelectionAreaController::OnClick()
+{
+	if(MoveActor){MoveActor = false;}
+	else { MoveActor = true; }
 }
