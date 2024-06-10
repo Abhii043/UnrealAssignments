@@ -14,6 +14,9 @@ struct FMeshProperties {
 	UStaticMesh* StaticMesh;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MeshProperties")
+	UMaterialInstance* Material;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MeshProperties")
 	float MinScale;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MeshProperties")

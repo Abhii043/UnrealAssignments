@@ -19,6 +19,20 @@ void AMeshGenerator::BeginPlay()
 	Super::BeginPlay();
 }
 
+void AMeshGenerator::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	if (AsyncMeshGeneratorTask)
+	{
+		if (!AsyncMeshGeneratorTask->IsDone()) {
+			AsyncMeshGeneratorTask->EnsureCompletion();
+
+		}
+		delete AsyncMeshGeneratorTask;
+		AsyncMeshGeneratorTask = nullptr;
+	}
+	Super::EndPlay(EndPlayReason);
+}
+
 // Called every frame
 void AMeshGenerator::Tick(float DeltaTime)
 {
@@ -27,7 +41,8 @@ void AMeshGenerator::Tick(float DeltaTime)
 
 void AMeshGenerator::ScatterObjects()
 {
-	PercentOfProgress = 0;
+	Progress = 1;
+	//NumberOfInstances -= (NumberOfInstances % 3);
 	for (auto& Pair : HISMComponents) {
 		if (UHierarchicalInstancedStaticMeshComponent* HISM = Pair.Value)
 		{
@@ -35,8 +50,12 @@ void AMeshGenerator::ScatterObjects()
 		}
 	}
 
-	if (AsyncMeshGeneratorTask && !AsyncMeshGeneratorTask->IsDone()) {
-		AsyncMeshGeneratorTask->EnsureCompletion();
+	if (AsyncMeshGeneratorTask)
+	{
+		if (!AsyncMeshGeneratorTask->IsDone()) {
+			AsyncMeshGeneratorTask->EnsureCompletion();
+
+		}
 		delete AsyncMeshGeneratorTask;
 		AsyncMeshGeneratorTask = nullptr;
 	}
@@ -45,9 +64,9 @@ void AMeshGenerator::ScatterObjects()
 	AsyncMeshGeneratorTask->StartBackgroundTask();
 }
 
-void AMeshGenerator::AddInstances(UStaticMesh* StaticMesh, const TArray<FTransform>& Transforms)
+void AMeshGenerator::AddInstances(UStaticMesh* StaticMesh, const TArray<FTransform>& Transforms , UMaterialInterface* Material)
 {
-	AsyncTask(ENamedThreads::GameThread, [this, StaticMesh, Transforms]()
+	AsyncTask(ENamedThreads::GameThread, [this, StaticMesh, Transforms , Material]()
 		{
 			UHierarchicalInstancedStaticMeshComponent** HISMCPtr = HISMComponents.Find(StaticMesh);
 			if (HISMCPtr && *HISMCPtr && (*HISMCPtr)->IsValidLowLevel())
@@ -58,6 +77,7 @@ void AMeshGenerator::AddInstances(UStaticMesh* StaticMesh, const TArray<FTransfo
 			{
 				UHierarchicalInstancedStaticMeshComponent* NewHISMC = NewObject<UHierarchicalInstancedStaticMeshComponent>(this);  
 				NewHISMC->SetStaticMesh(StaticMesh);
+				NewHISMC->SetMaterial(0, Material);
 
 				HISMComponents.Add(StaticMesh, NewHISMC);
 
@@ -65,8 +85,9 @@ void AMeshGenerator::AddInstances(UStaticMesh* StaticMesh, const TArray<FTransfo
 				NewHISMC->AddInstances(Transforms, false);
 			}
 
-			PercentOfProgress += (float(1)/float(NumberOfInstances-1));
+			float PercentOfProgress = Progress /float(NumberOfInstances);
 			UpdateProgessBar(PercentOfProgress);
+			Progress++;
 
 		});
 }

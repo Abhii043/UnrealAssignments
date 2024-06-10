@@ -18,25 +18,41 @@ void FAsyncMeshGeneratorTask::DoWork()
 		{
 			TArray<FMeshProperties> MeshPropertiesArr = MeshDataAsset->MeshPropertiesArr;
 
-			for (int Index = 0; Index < MeshPropertiesArr.Num(); Index++)
+			for (int iIndex = 0; iIndex < MeshGenerator->NumberOfInstances; iIndex++)
 			{
-				//int32 RandomMeshIndex = FMath::RandRange(0, StaticMeshes.Num() - 1);
-				UStaticMesh* CurrentMesh = MeshPropertiesArr[Index].StaticMesh;
+				int RandomIndex = FMath::RandRange(0, MeshPropertiesArr.Num() - 1);
 
-				for (int iIndex = 0; iIndex < MeshGenerator->NumberOfInstances/3; iIndex++)
-				{
-					FVector BoundingExtent = (MeshGenerator->SelectedActor->GetActorScale3D() * MeshGenerator->Dimensions)/2;
+				UStaticMesh* CurrentMesh = MeshPropertiesArr[RandomIndex].StaticMesh;
+				UMaterialInterface* Material = MeshPropertiesArr[RandomIndex].Material;
+
+				float MinScale = MeshPropertiesArr[RandomIndex].MinScale;
+				float MaxScale = MeshPropertiesArr[RandomIndex].MaxScale;
+				float MinRotation = MeshPropertiesArr[RandomIndex].MinRotation;
+				float MaxRotation = MeshPropertiesArr[RandomIndex].MaxRotation;
+
+				TArray<FTransform> InstanceTransforms;
+				FTransform Transform;
+
+				if(MeshGenerator->SelectedBoundingBox == "Box") {
+					FVector BoundingExtent = (MeshGenerator->SelectedActor->GetActorScale3D() * MeshGenerator->Dimensions) / 2;
+					FVector Origin = MeshGenerator->SelectedActor->GetActorLocation();
+					FBox BoundingBox(Origin - BoundingExtent, Origin + BoundingExtent);
+					FVector Position = FMath::RandPointInBox(BoundingBox);
+					Transform.SetLocation(Position);
+				}
+				else {
+					float Radius = MeshGenerator->SelectedActor->GetActorScale3D().X * MeshGenerator->Dimensions.X;
 					FVector Origin = MeshGenerator->SelectedActor->GetActorLocation();
 
-					FBox BoundingBox(Origin - BoundingExtent, Origin + BoundingExtent);
-
-					FVector Position = FMath::RandPointInBox(BoundingBox);
-
-					TArray<FTransform> InstanceTransforms;
-					InstanceTransforms.Add(FTransform(Position));
-					MeshGenerator->AddInstances(CurrentMesh, InstanceTransforms);
-					FPlatformProcess::Sleep(0.01);
+					Transform.SetLocation(FMath::VRand() * FMath::FRandRange(0.0f, Radius) + Origin);
 				}
+
+				Transform.SetScale3D(FVector(FMath::RandRange(MinScale, MaxScale)));
+				Transform.SetRotation(FQuat(FRotator(FMath::RandRange(MinRotation, MaxRotation), FMath::RandRange(MinRotation, MaxRotation), FMath::RandRange(MinRotation, MaxRotation))));
+				InstanceTransforms.Add(Transform);
+
+				MeshGenerator->AddInstances(CurrentMesh, InstanceTransforms , Material);
+				FPlatformProcess::Sleep(0.01f);
 			}
 		}
 	}

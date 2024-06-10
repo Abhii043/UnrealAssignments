@@ -22,6 +22,7 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 public:	
 	// Called every frame
@@ -42,17 +43,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MeshGenerator")
 	FString SelectedBoundingBox;
 
-	UFUNCTION(BlueprintCallable , Category = "MeshGenerator")
-	void AddInstances(UStaticMesh* StaticMesh, const TArray<FTransform>& Transforms);
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MeshGenerator")
+	float Progress;
 
-	/*UFUNCTION(BlueprintCallable , Category = "MeshGenerator")
-	void FinishScatter();*/
+	UFUNCTION(BlueprintCallable , Category = "MeshGenerator")
+	void AddInstances(UStaticMesh* StaticMesh, const TArray<FTransform>& Transforms , UMaterialInterface* Material);
 
 	UFUNCTION(BlueprintCallable, Category = "MeshGenerator")
 	void ScatterObjects();
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MeshGenerator")
-	float PercentOfProgress;
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "MeshGernerator")
 	void UpdateProgessBar(float PercentOfProg);
@@ -61,8 +59,8 @@ private:
 	UPROPERTY(EditAnywhere, Category = "MeshGenerator")
 	USceneComponent* SceneComponent;
 
-	FAsyncTask<FAsyncMeshGeneratorTask>* AsyncMeshGeneratorTask;
-
 	UPROPERTY()
 	TMap<UStaticMesh*, UHierarchicalInstancedStaticMeshComponent*> HISMComponents;
+
+	FAsyncTask<FAsyncMeshGeneratorTask>* AsyncMeshGeneratorTask;
 };
