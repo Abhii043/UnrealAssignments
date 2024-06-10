@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
 #include "SelectionArea.h"
+#include "MeshGenerator.h"
 #include <InputMappingContext.h>
 #include <InputAction.h>
 #include "EnhancedInputComponent.h"
@@ -27,11 +28,20 @@ public:
 	UPROPERTY(VisibleDefaultsOnly,Category = "SelectionAreaController")
 	FHitResult HitResult;
 
+	UPROPERTY(VisibleDefaultsOnly,Category = "SelectionAreaController")
+	FVector Location;
+
 	UPROPERTY(EditDefaultsOnly , Category = "SelectionAreaController")
 	TSubclassOf<ASelectionArea> _SelectionActor;
 
 	UPROPERTY(BlueprintReadWrite , Category = "SelectionAreaController")
 	ASelectionArea* SelectionActor;
+
+	UPROPERTY(EditDefaultsOnly , Category = "SelectionAreaController")
+	TSubclassOf<AMeshGenerator> _MeshGeneratorActor;
+	
+	UPROPERTY(BlueprintReadWrite, Category = "SelectionAreaController")
+	AMeshGenerator* MeshGeneratorActor;
 
 	UPROPERTY(BlueprintReadWrite , Category = "SelectionAreaController")
 	FString SelectedBoundingBox{"Box"};
@@ -50,6 +60,9 @@ protected:
 public:
 	UFUNCTION(BlueprintCallable , Category = "SelectionAreaController")
 	void OnClick();
+
+	UFUNCTION(BlueprintCallable , Category = "SelectionAreaController")
+	void GenerateMesh(int32 NoOfMeshes);
 
 	UPROPERTY(BlueprintReadWrite , Category = "SelectionAreaController")
 	bool MoveActor{true};
