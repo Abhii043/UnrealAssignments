@@ -3,7 +3,6 @@
 
 #include "FAsyncMeshGeneratorTask.h"
 #include "MeshGenerator.h"
-#include "Async/ParallelFor.h"
 
 FAsyncMeshGeneratorTask::FAsyncMeshGeneratorTask(AMeshGenerator* InMeshGenerator)
 {
@@ -12,6 +11,7 @@ FAsyncMeshGeneratorTask::FAsyncMeshGeneratorTask(AMeshGenerator* InMeshGenerator
 
 void FAsyncMeshGeneratorTask::DoWork()
 {
+	if (!MeshGenerator || !IsValid(MeshGenerator)) { return; };
 	if (MeshGenerator)
 	{
 		if (UMeshDataAsset* MeshDataAsset = MeshGenerator->MeshDataAsset)
@@ -41,17 +41,25 @@ void FAsyncMeshGeneratorTask::DoWork()
 					Transform.SetLocation(Position);
 				}
 				else {
-					float Radius = MeshGenerator->SelectedActor->GetActorScale3D().X * MeshGenerator->Dimensions.X;
-					FVector Origin = MeshGenerator->SelectedActor->GetActorLocation();
+					if(MeshGenerator && MeshGenerator->SelectedActor){
+						float Radius = MeshGenerator->SelectedActor->GetActorScale3D().X * MeshGenerator->Dimensions.X;
+						FVector Origin = MeshGenerator->SelectedActor->GetActorLocation();
 
-					Transform.SetLocation(FMath::VRand() * FMath::FRandRange(0.0f, Radius) + Origin);
+						Transform.SetLocation(FMath::VRand() * FMath::FRandRange(0.0f, Radius) + Origin);
+					}
 				}
 
 				Transform.SetScale3D(FVector(FMath::RandRange(MinScale, MaxScale)));
 				Transform.SetRotation(FQuat(FRotator(FMath::RandRange(MinRotation, MaxRotation), FMath::RandRange(MinRotation, MaxRotation), FMath::RandRange(MinRotation, MaxRotation))));
 				InstanceTransforms.Add(Transform);
 
+
+				AsyncTask(ENamedThreads::GameThread, [this, CurrentMesh, InstanceTransforms, Material]()
+					{
 				MeshGenerator->AddInstances(CurrentMesh, InstanceTransforms , Material);
+
+					});
+
 				FPlatformProcess::Sleep(0.01f);
 			}
 		}

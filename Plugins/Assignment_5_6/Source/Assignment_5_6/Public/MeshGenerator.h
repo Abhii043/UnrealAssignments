@@ -22,7 +22,7 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+	virtual void BeginDestroy() override;
 
 public:	
 	// Called every frame
@@ -56,8 +56,6 @@ public:
 	void UpdateProgessBar(float PercentOfProg);
 
 private:
-	UPROPERTY(EditAnywhere, Category = "MeshGenerator")
-	USceneComponent* SceneComponent;
 
 	UPROPERTY()
 	TMap<UStaticMesh*, UHierarchicalInstancedStaticMeshComponent*> HISMComponents;

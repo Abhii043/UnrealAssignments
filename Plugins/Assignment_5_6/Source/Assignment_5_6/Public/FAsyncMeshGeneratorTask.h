@@ -14,7 +14,7 @@ public:
 
 	FORCEINLINE TStatId GetStatId() const
 	{
-		RETURN_QUICK_DECLARE_CYCLE_STAT(AsyncTask, STATGROUP_ThreadPoolAsyncTasks);
+		RETURN_QUICK_DECLARE_CYCLE_STAT(FAsyncMeshGeneratorTask, STATGROUP_ThreadPoolAsyncTasks);
 	}
 
 private:

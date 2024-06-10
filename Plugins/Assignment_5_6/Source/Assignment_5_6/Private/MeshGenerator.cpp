@@ -6,11 +6,7 @@
 // Sets default values
 AMeshGenerator::AMeshGenerator()
 {
-	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
-	SceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("SceneComponent"));
-	RootComponent = SceneComponent;
 }
 
 // Called when the game starts or when spawned
@@ -19,18 +15,15 @@ void AMeshGenerator::BeginPlay()
 	Super::BeginPlay();
 }
 
-void AMeshGenerator::EndPlay(const EEndPlayReason::Type EndPlayReason)
+void AMeshGenerator::BeginDestroy()
 {
+	Super::BeginDestroy();
 	if (AsyncMeshGeneratorTask)
 	{
-		if (!AsyncMeshGeneratorTask->IsDone()) {
-			AsyncMeshGeneratorTask->EnsureCompletion();
-
-		}
+		AsyncMeshGeneratorTask->EnsureCompletion();
 		delete AsyncMeshGeneratorTask;
 		AsyncMeshGeneratorTask = nullptr;
 	}
-	Super::EndPlay(EndPlayReason);
 }
 
 // Called every frame
@@ -42,7 +35,6 @@ void AMeshGenerator::Tick(float DeltaTime)
 void AMeshGenerator::ScatterObjects()
 {
 	Progress = 1;
-	//NumberOfInstances -= (NumberOfInstances % 3);
 	for (auto& Pair : HISMComponents) {
 		if (UHierarchicalInstancedStaticMeshComponent* HISM = Pair.Value)
 		{
@@ -66,28 +58,27 @@ void AMeshGenerator::ScatterObjects()
 
 void AMeshGenerator::AddInstances(UStaticMesh* StaticMesh, const TArray<FTransform>& Transforms , UMaterialInterface* Material)
 {
-	AsyncTask(ENamedThreads::GameThread, [this, StaticMesh, Transforms , Material]()
-		{
-			UHierarchicalInstancedStaticMeshComponent** HISMCPtr = HISMComponents.Find(StaticMesh);
-			if (HISMCPtr && *HISMCPtr && (*HISMCPtr)->IsValidLowLevel())
-			{
-				(*HISMCPtr)->AddInstances(Transforms, false);
-			}
-			else
-			{
-				UHierarchicalInstancedStaticMeshComponent* NewHISMC = NewObject<UHierarchicalInstancedStaticMeshComponent>(this);  
-				NewHISMC->SetStaticMesh(StaticMesh);
-				NewHISMC->SetMaterial(0, Material);
+	if (!this || !IsValid(this)) { return; };
+	UHierarchicalInstancedStaticMeshComponent** HISMCPtr = HISMComponents.Find(StaticMesh);
+	if (HISMCPtr && *HISMCPtr && (*HISMCPtr)->IsValidLowLevel())
+	{
+		(*HISMCPtr)->AddInstances(Transforms, false);
+	}
+	else
+	{
+		UHierarchicalInstancedStaticMeshComponent* NewHISMC = NewObject<UHierarchicalInstancedStaticMeshComponent>(this);
+		NewHISMC->SetStaticMesh(StaticMesh);
+		NewHISMC->SetMaterial(0, Material);
 
-				HISMComponents.Add(StaticMesh, NewHISMC);
+		HISMComponents.Add(StaticMesh, NewHISMC);
 
-				NewHISMC->RegisterComponentWithWorld(GetWorld());
-				NewHISMC->AddInstances(Transforms, false);
-			}
+		NewHISMC->RegisterComponentWithWorld(GetWorld());
+		NewHISMC->AddInstances(Transforms, false);
+	}
 
-			float PercentOfProgress = Progress /float(NumberOfInstances);
-			UpdateProgessBar(PercentOfProgress);
-			Progress++;
+	float PercentOfProgress = Progress / float(NumberOfInstances);
 
-		});
+	UpdateProgessBar(PercentOfProgress);
+	Progress++;
+
 }
