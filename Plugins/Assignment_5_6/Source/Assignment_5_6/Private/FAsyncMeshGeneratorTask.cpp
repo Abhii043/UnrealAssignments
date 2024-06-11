@@ -11,14 +11,13 @@ FAsyncMeshGeneratorTask::FAsyncMeshGeneratorTask(AMeshGenerator* InMeshGenerator
 
 void FAsyncMeshGeneratorTask::DoWork()
 {
-	if (!MeshGenerator || !IsValid(MeshGenerator)) { return; };
-	if (MeshGenerator)
+	if (MeshGenerator || IsValid(MeshGenerator))
 	{
 		if (UMeshDataAsset* MeshDataAsset = MeshGenerator->MeshDataAsset)
 		{
 			TArray<FMeshProperties> MeshPropertiesArr = MeshDataAsset->MeshPropertiesArr;
 
-			for (int iIndex = 0; iIndex < MeshGenerator->NumberOfInstances; iIndex++)
+			for(int iIndex = 0; IsValid(MeshGenerator) && IsValid(MeshGenerator->SelectedActor) && iIndex < MeshGenerator->NumberOfInstances; iIndex++)
 			{
 				int RandomIndex = FMath::RandRange(0, MeshPropertiesArr.Num() - 1);
 

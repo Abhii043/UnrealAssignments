@@ -15,17 +15,6 @@ void AMeshGenerator::BeginPlay()
 	Super::BeginPlay();
 }
 
-void AMeshGenerator::BeginDestroy()
-{
-	Super::BeginDestroy();
-	if (AsyncMeshGeneratorTask)
-	{
-		AsyncMeshGeneratorTask->EnsureCompletion();
-		delete AsyncMeshGeneratorTask;
-		AsyncMeshGeneratorTask = nullptr;
-	}
-}
-
 // Called every frame
 void AMeshGenerator::Tick(float DeltaTime)
 {
