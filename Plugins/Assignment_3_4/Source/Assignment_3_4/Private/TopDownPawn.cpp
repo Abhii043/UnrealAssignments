@@ -2,7 +2,7 @@
 
 
 #include "TopDownPawn.h"
-#include "C:/Program Files/Epic Games/UE_5.2/Engine/Plugins/EnhancedInput/Source/EnhancedInput/Public/EnhancedInputComponent.h"
+#include "EnhancedInputComponent.h"
 
 // Sets default values
 ATopDownPawn::ATopDownPawn()

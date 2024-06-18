@@ -47,7 +47,6 @@ void AMeshGenerator::ScatterObjects()
 
 void AMeshGenerator::AddInstances(UStaticMesh* StaticMesh, const TArray<FTransform>& Transforms , UMaterialInterface* Material)
 {
-	if (!this || !IsValid(this)) { return; };
 	UHierarchicalInstancedStaticMeshComponent** HISMCPtr = HISMComponents.Find(StaticMesh);
 	if (HISMCPtr && *HISMCPtr && (*HISMCPtr)->IsValidLowLevel())
 	{
